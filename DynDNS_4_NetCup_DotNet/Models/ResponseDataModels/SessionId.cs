@@ -1,0 +1,16 @@
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="SessionId.cs" company="REGIOCAST GmbH & Co. KG">
+// (C) 2024 by REGIOCAST GmbH und Co. KG
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System.Text.Json.Serialization;
+
+namespace FachIT360.Utils.Dns.NetCup.Models.ResponseDataModels
+{
+    public class SessionId
+    {
+        [JsonPropertyName("apisessionid")]
+        public string ApiSessionId { get; set; }
+    }
+}
