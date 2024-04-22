@@ -8,10 +8,10 @@
     <PublishAot>true</PublishAot>
     <UserSecretsId>dotnet-DynDNS_4_NetCup_DotNet-e3309b49-bd15-4a7d-b3ae-9bbf70c6803c</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <AssemblyName>netcup-ddns</AssemblyName>
+    <AssemblyName>netcup-dyndns</AssemblyName>
     <RootNamespace>FachIT360.Utils.Dns.NetCup</RootNamespace>
-    <AssemblyVersion>1.0.64.30820</AssemblyVersion>
-    <FileVersion>1.0.64.30820</FileVersion>
+    <AssemblyVersion>1.0.77.39885</AssemblyVersion>
+    <FileVersion>1.0.77.39885</FileVersion>
     <!--<EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>-->
     
   </PropertyGroup>
