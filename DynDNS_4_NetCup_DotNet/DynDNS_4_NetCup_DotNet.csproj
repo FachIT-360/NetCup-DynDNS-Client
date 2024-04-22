@@ -10,8 +10,8 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <AssemblyName>netcup-dyndns</AssemblyName>
     <RootNamespace>FachIT360.Utils.Dns.NetCup</RootNamespace>
-    <AssemblyVersion>1.0.77.39885</AssemblyVersion>
-    <FileVersion>1.0.77.39885</FileVersion>
+    <AssemblyVersion>1.0.78.39885</AssemblyVersion>
+    <FileVersion>1.0.78.39885</FileVersion>
     <!--<EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>-->
     
   </PropertyGroup>

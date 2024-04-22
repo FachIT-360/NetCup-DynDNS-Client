@@ -21,7 +21,7 @@ FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./DynDNS_4_NetCup_DotNet.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=true
 
-FROM 8.0-alpine-extra AS final
+FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine-extra AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
