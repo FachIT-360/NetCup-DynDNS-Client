@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
@@ -6,9 +7,6 @@ using System.Text.Json;
 using FachIT360.Utils.Dns.NetCup.Models;
 using FachIT360.Utils.Dns.NetCup.Models.RequestParamModels;
 using FachIT360.Utils.Dns.NetCup.Models.ResponseDataModels;
-using FachIT360.Utils.Dns.NetCup.Models.Settings;
-
-using Microsoft.Extensions.Options;
 
 using SourceGenerationContext = FachIT360.Utils.Dns.NetCup.JsonSerializerContext.SourceGenerationContext;
 
@@ -18,14 +16,10 @@ namespace FachIT360.Utils.Dns.NetCup.Services
     {
     #region Constants - Static fields - Fields
 
-        private readonly Login _apiLoginCredentials;
-
-        private readonly IConfiguration                          _config;
-        private readonly Dictionary<string, IEnumerable<string>> _domains;
-
-        //private readonly string[]                       _domains;
-        private readonly HttpClient                     _httpClient;
-        private readonly ILogger<NetCupDynDnsApiClient> _log;
+        private readonly Login                            _apiLoginCredentials = null!;
+        private readonly Dictionary<string, List<string>> _domains             = new();
+        private readonly HttpClient                       _httpClient          = null!;
+        private readonly ILogger<NetCupDynDnsApiClient>   _log                 = null!;
 
     #endregion
 
@@ -33,42 +27,93 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
         public NetCupDynDnsApiClient(ILogger<NetCupDynDnsApiClient> log,
                                      HttpClient httpClient,
-                                     IOptionsMonitor<NetCupApi> settings,
                                      IConfiguration config)
         {
-            _log        = log;
-            _httpClient = httpClient;
-            _config     = config;
-
-            _apiLoginCredentials = new Login
-                                   {
-                                       ApiKey = !string.IsNullOrWhiteSpace(config["NetCupApi:Login:ApiKey"])
-                                                    ? config["NetCupApi:Login:ApiKey"]!
-                                                    : !string.IsNullOrWhiteSpace(config["NETCUP_LOGIN_APIKEY"])
-                                                        ? config["NETCUP_LOGIN_APIKEY"]!
-                                                        : throw new ArgumentNullException(
-                                                              nameof(config), "The ApiKey parameter in the config is not set."),
-                                       ApiPassword = !string.IsNullOrWhiteSpace(config["NetCupApi:Login:ApiPassword"])
-                                                         ? config["NetCupApi:Login:ApiPassword"]!
-                                                         : !string.IsNullOrWhiteSpace(config["NETCUP_LOGIN_APIPASSWORD"])
-                                                             ? config["NETCUP_LOGIN_APIPASSWORD"]!
-                                                             : throw new ArgumentNullException(
-                                                                   nameof(config), "The ApiPassword parameter in the config is not set."),
-                                       CustomerNumber = !string.IsNullOrWhiteSpace(config["NetCupApi:Login:CustomerNumber"])
-                                                            ? uint.Parse(config["NetCupApi:Login:CustomerNumber"]!)
-                                                            : !string.IsNullOrWhiteSpace(config["NETCUP_LOGIN_CUSTOMERNUMBER"])
-                                                                ? uint.Parse(config["NETCUP_LOGIN_CUSTOMERNUMBER"]!)
-                                                                : throw new ArgumentNullException(
-                                                                  nameof(config), "The CustomerNumber parameter in the config is not set.")
-                                   };
-
-            _domains = new Dictionary<string, IEnumerable<string>>();
-
-            foreach (var domain in _config.GetSection("NetCupApi:Domains").GetChildren())
+            try
             {
-                _domains.Add(domain.Key, new List<string>(domain.GetChildren()
-                                                                .Where(item => item.Value != null)
-                                                                .Select(item => item.Value!)));
+                _log        = log;
+                _httpClient = httpClient;
+
+                _apiLoginCredentials = new Login
+                                       {
+                                           ApiKey = !string.IsNullOrWhiteSpace(config["NetCupApi:Login:ApiKey"])
+                                                        ? config["NetCupApi:Login:ApiKey"]!
+                                                        : !string.IsNullOrWhiteSpace(config["NETCUP_LOGIN_APIKEY"])
+                                                            ? config["NETCUP_LOGIN_APIKEY"]!
+                                                            : throw new ArgumentNullException(
+                                                                  nameof(config), "The ApiKey parameter in the config is not set."),
+                                           ApiPassword = !string.IsNullOrWhiteSpace(config["NetCupApi:Login:ApiPassword"])
+                                                             ? config["NetCupApi:Login:ApiPassword"]!
+                                                             : !string.IsNullOrWhiteSpace(config["NETCUP_LOGIN_APIPASSWORD"])
+                                                                 ? config["NETCUP_LOGIN_APIPASSWORD"]!
+                                                                 : throw new ArgumentNullException(
+                                                                       nameof(config), "The ApiPassword parameter in the config is not set."),
+                                           CustomerNumber = !string.IsNullOrWhiteSpace(config["NetCupApi:Login:CustomerNumber"])
+                                                                ? uint.Parse(config["NetCupApi:Login:CustomerNumber"]!)
+                                                                : !string.IsNullOrWhiteSpace(config["NETCUP_LOGIN_CUSTOMERNUMBER"])
+                                                                    ? uint.Parse(config["NETCUP_LOGIN_CUSTOMERNUMBER"]!)
+                                                                    : throw new ArgumentNullException(
+                                                                          nameof(config), "The CustomerNumber parameter in the config is not set.")
+                                       };
+
+                foreach (var domain in config.GetSection("NetCupApi:Domains").GetChildren())
+                {
+                    _domains.Add(domain.Key, new List<string>(domain.GetChildren()
+                                                                    .Where(item => item.Value != null)
+                                                                    .Select(item => item.Value!)
+                                                                    .Distinct()));
+                }
+
+                foreach (DictionaryEntry environmentVariable in Environment.GetEnvironmentVariables())
+                {
+                    if (!environmentVariable.Key.ToString()!.StartsWith("NETCUP_DOMAINS"))
+                    {
+                        continue;
+                    }
+
+                    if (environmentVariable.Value == null)
+                    {
+                        continue;
+                    }
+
+                    // Parse domain elements from environment variable
+                    var domainElements = environmentVariable
+                                         .Value
+                                         .ToString()!
+                                         .ToLower()
+                                         .Split('|')
+                                         .ToList();
+
+                    // Get the domain name
+                    var newEnvDomainName = domainElements[0];
+
+                    // Get the dns records
+                    var newEnvDnsRecords = domainElements.Skip(1).ToList();
+
+                    // Add domain if not exists in _domains
+                    if (!_domains.Keys.Contains(newEnvDomainName))
+                    {
+                        _domains.Add(newEnvDomainName, new List<string>());
+                    }
+
+                    // Get the current domain from _domains
+                    var existingDomain = _domains.Single(item => item.Key == newEnvDomainName);
+
+                    // Get a merged collection of dns records
+                    newEnvDnsRecords = existingDomain.Value
+                                                     .Union(newEnvDnsRecords)
+                                                     .ToList();
+
+                    // Clear the dns records
+                    existingDomain.Value.Clear();
+
+                    // Add the merged dns records
+                    existingDomain.Value.AddRange(newEnvDnsRecords);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, "Error while initialize NetCupDynDnsApiClient. Check the exception details in this log event.");
             }
         }
 
