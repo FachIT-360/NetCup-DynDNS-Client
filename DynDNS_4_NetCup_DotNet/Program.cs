@@ -22,7 +22,7 @@ namespace FachIT360.Utils.Dns.NetCup
                                      {
                                          options.TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff | ";
                                          options.ColorBehavior   = LoggerColorBehavior.Default;
-                                         options.SingleLine = true;
+                                         options.SingleLine = false;
                                      });
             
             builder.Services.Configure<NetCupApi>(builder.Configuration.GetSection("NetCupApi"));
