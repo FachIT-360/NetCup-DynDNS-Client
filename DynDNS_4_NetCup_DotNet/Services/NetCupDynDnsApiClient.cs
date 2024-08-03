@@ -129,7 +129,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
                 if (IPAddress.TryParse(await _httpClient.GetStringAsync("https://api.ipify.org"), out var currentIpAddressV4))
                 {
-                    _log.LogInformation($"The current public ip v4 address is: {currentIpAddressV4}");
+                    _log.LogDebug($"The current public ip v4 address is: {currentIpAddressV4}");
                     publicAddresses.Add(currentIpAddressV4);
                 }
 
@@ -137,7 +137,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                 {
                     if (currentIpAddressV6.AddressFamily == AddressFamily.InterNetworkV6)
                     {
-                        _log.LogInformation($"The current public ip v6 address is: {currentIpAddressV6}");
+                        _log.LogDebug($"The current public ip v6 address is: {currentIpAddressV6}");
                         publicAddresses.Add(currentIpAddressV6);
                     }
                 }
@@ -152,7 +152,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
             }
         }
 
-        public async Task<ResponseDataInfoDnsRecords?> GetInfoDnsRecords(string apiSessionId, string domain)
+        public async Task<ResponseDataInfoDnsRecords?> GetDomainDnsRecords(string apiSessionId, string domain)
         {
             try
             {
@@ -184,7 +184,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
                             if (responseData is { Status: "success" })
                             {
-                                _log.LogInformation($"Requesting dns records for domain \"{domain}\" was successful.");
+                                _log.LogDebug($"Requesting dns records for domain \"{domain}\" was successful.");
 
                                 return responseData;
                             }
@@ -229,7 +229,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
                             if (responseData is { Status: "success" })
                             {
-                                _log.LogInformation("The api login was successful.");
+                                _log.LogDebug("The api login was successful.");
 
                                 return responseData.ResponseData.ApiSessionId;
                             }
@@ -262,16 +262,16 @@ namespace FachIT360.Utils.Dns.NetCup.Services
             {
                 foreach (var domain in _domains)
                 {
-                    var domainDnsRecords = await GetInfoDnsRecords(apiSessionId, domain.Key);
+                    var allDomainDnsRecords = await GetDomainDnsRecords(apiSessionId, domain.Key);
 
-                    if (domainDnsRecords == null)
+                    if (allDomainDnsRecords == null)
                     {
                         continue;
                     }
 
-                    var recordNamesToUpdate = domain.Value;
+                    var dnsRecordNamesToUpdate = domain.Value;
 
-                    if (CurrentPublicIpChanged(currentPublicIps, domainDnsRecords, recordNamesToUpdate, out var recordsToUpdate))
+                    if (CurrentPublicIpChanged(currentPublicIps, allDomainDnsRecords, dnsRecordNamesToUpdate, out var dnsRecordsToUpdate))
                     {
                         try
                         {
@@ -286,7 +286,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                                                          DomainName     = domain.Key,
                                                          DnsRecordSet = new DnsRecords
                                                                         {
-                                                                            DnsRecordArray = [.. recordsToUpdate]
+                                                                            DnsRecordArray = [.. dnsRecordsToUpdate]
                                                                         }
                                                      }
                                          };
@@ -329,22 +329,22 @@ namespace FachIT360.Utils.Dns.NetCup.Services
             //await Logout();
         }
 
-        private bool CurrentPublicIpChanged(List<IPAddress> currentPublicIps, ResponseDataInfoDnsRecords infoDnsRecords,
-                                            IEnumerable<string> recordNamesToUpdate, out List<DnsRecord> recordsToUpdate)
+        private bool CurrentPublicIpChanged(List<IPAddress> currentPublicIps, ResponseDataInfoDnsRecords allDomainDnsRecords,
+                                            IEnumerable<string> dnsRecordNamesToUpdate, out List<DnsRecord> dnsRecordsToUpdate)
         {
             var hasChanged = false;
-            recordsToUpdate = [];
+            dnsRecordsToUpdate = [];
 
-            if (infoDnsRecords.ResponseData == null)
+            if (allDomainDnsRecords.ResponseData == null)
             {
                 return false;
             }
 
             // Get dns records that should update
-            foreach (var dnsRecord in infoDnsRecords
+            foreach (var dnsRecord in allDomainDnsRecords
                                       .ResponseData
                                       .DnsRecordArray
-                                      .Where(item => recordNamesToUpdate.Contains(item.Hostname)))
+                                      .Where(item => dnsRecordNamesToUpdate.Contains(item.Hostname)))
             {
                 // Check if destination is parsable to IPAddress
                 if (!IPAddress.TryParse(dnsRecord.Destination, out var destinationIp))
@@ -356,7 +356,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                 {
                     if (currentIp.ToString() == destinationIp.ToString())
                     {
-                        _log.LogInformation($"The ip of dns record \"{dnsRecord.Hostname}\" with type \"{dnsRecord.Type}\" has not changed.");
+                        _log.LogDebug($"The ip of dns record \"{dnsRecord.Hostname}\" with type \"{dnsRecord.Type}\" has not changed.");
 
                         continue;
                     }
@@ -369,7 +369,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
                 hasChanged = true;
 
-                recordsToUpdate.Add(dnsRecord);
+                dnsRecordsToUpdate.Add(dnsRecord);
             }
 
             return hasChanged;
