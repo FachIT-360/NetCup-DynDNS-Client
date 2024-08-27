@@ -352,6 +352,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                     continue;
                 }
 
+                // Check an IP Address of hosts has changed
                 foreach (var currentIp in currentPublicIps.Where(currentPublicIp => currentPublicIp.AddressFamily == destinationIp.AddressFamily))
                 {
                     if (currentIp.ToString() == destinationIp.ToString())
@@ -365,11 +366,11 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                         $"The ip of dns record \"{dnsRecord.Hostname}\" with type \"{dnsRecord.Type}\" has changed to \"{currentIp}\".");
 
                     dnsRecord.Destination = currentIp.ToString();
-                }
 
                 hasChanged = true;
 
                 recordsToUpdate.Add(dnsRecord);
+            }
             }
 
             return hasChanged;
