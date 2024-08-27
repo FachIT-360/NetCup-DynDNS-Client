@@ -121,132 +121,6 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
     #region Methods
 
-        public async Task<List<IPAddress>> GetCurrentPublicIp()
-        {
-            try
-            {
-                var publicAddresses = new List<IPAddress>();
-
-                if (IPAddress.TryParse(await _httpClient.GetStringAsync("https://api.ipify.org"), out var currentIpAddressV4))
-                {
-                    _log.LogInformation($"The current public ip v4 address is: {currentIpAddressV4}");
-                    publicAddresses.Add(currentIpAddressV4);
-                }
-
-                if (IPAddress.TryParse(await _httpClient.GetStringAsync("https://api64.ipify.org"), out var currentIpAddressV6))
-                {
-                    if (currentIpAddressV6.AddressFamily == AddressFamily.InterNetworkV6)
-                    {
-                        _log.LogInformation($"The current public ip v6 address is: {currentIpAddressV6}");
-                        publicAddresses.Add(currentIpAddressV6);
-                    }
-                }
-
-                return publicAddresses;
-            }
-            catch (Exception ex)
-            {
-                _log.LogError(ex, "Error while getting current public ip.");
-
-                return [];
-            }
-        }
-
-        public async Task<ResponseDataInfoDnsRecords?> GetInfoDnsRecords(string apiSessionId, string domain)
-        {
-            try
-            {
-                var action = new RequestActionInfoDnsRecords
-                             {
-                                 Action = "infoDnsRecords",
-                                 Param = new InfoDnsRecords
-                                         {
-                                             ApiKey         = _apiLoginCredentials.ApiKey,
-                                             ApiSessionId   = apiSessionId,
-                                             CustomerNumber = _apiLoginCredentials.CustomerNumber,
-                                             DomainName     = domain
-                                         }
-                             };
-
-                var actionJson = JsonSerializer.Serialize(action, SourceGenerationContext.Default.RequestActionInfoDnsRecords);
-
-                using (var request = new HttpRequestMessage(HttpMethod.Post, ""))
-                {
-                    request.Version = HttpVersion.Version20;
-                    request.Content = new StringContent(actionJson, Encoding.UTF8, "application/json");
-
-                    using (var response = await _httpClient.SendAsync(request))
-                    {
-                        if (response.IsSuccessStatusCode)
-                        {
-                            var responseData = JsonSerializer.Deserialize(
-                                await response.Content.ReadAsStringAsync(), SourceGenerationContext.Default.ResponseDataInfoDnsRecords);
-
-                            if (responseData is { Status: "success" })
-                            {
-                                _log.LogInformation($"Requesting dns records for domain \"{domain}\" was successful.");
-
-                                return responseData;
-                            }
-
-                            _log.LogError($"Requesting dns records for domain \"{domain}\" was failed.");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _log.LogError(ex, "Error while request domain dns records.");
-            }
-
-            return null;
-        }
-
-        public async Task<string?> Login()
-        {
-            try
-            {
-                var action = new RequestActionLogin
-                             {
-                                 Action = "login",
-                                 Param  = _apiLoginCredentials
-                             };
-
-                var actionJson = JsonSerializer.Serialize(action, SourceGenerationContext.Default.RequestActionLogin);
-
-                using (var request = new HttpRequestMessage(HttpMethod.Post, ""))
-                {
-                    request.Version = HttpVersion.Version20;
-                    request.Content = new StringContent(actionJson, Encoding.UTF8, "application/json");
-
-                    using (var response = await _httpClient.SendAsync(request))
-                    {
-                        if (response.IsSuccessStatusCode)
-                        {
-                            var responseData = JsonSerializer
-                                .Deserialize(await response.Content.ReadAsStringAsync(),
-                                             SourceGenerationContext.Default.ResponseDataLogin);
-
-                            if (responseData is { Status: "success" })
-                            {
-                                _log.LogInformation("The api login was successful.");
-
-                                return responseData.ResponseData.ApiSessionId;
-                            }
-
-                            _log.LogError("The api login was failed.");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _log.LogError(ex, "Error while API login.");
-            }
-
-            return null;
-        }
-
         public async Task UpdateDynDns()
         {
             var currentPublicIps = await GetCurrentPublicIp();
@@ -324,9 +198,9 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                         }
                     }
                 }
-            }
 
-            //await Logout();
+                await Logout(apiSessionId);
+            }
         }
 
         private bool CurrentPublicIpChanged(List<IPAddress> currentPublicIps, ResponseDataInfoDnsRecords infoDnsRecords,
@@ -367,13 +241,196 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
                     dnsRecord.Destination = currentIp.ToString();
 
-                hasChanged = true;
+                    hasChanged = true;
 
-                recordsToUpdate.Add(dnsRecord);
-            }
+                    recordsToUpdate.Add(dnsRecord);
+                }
             }
 
             return hasChanged;
+        }
+
+        private async Task<List<IPAddress>> GetCurrentPublicIp()
+        {
+            try
+            {
+                var publicAddresses = new List<IPAddress>();
+
+                if (IPAddress.TryParse(await _httpClient.GetStringAsync("https://api.ipify.org"), out var currentIpAddressV4))
+                {
+                    _log.LogInformation($"The current public ip v4 address is: {currentIpAddressV4}");
+                    publicAddresses.Add(currentIpAddressV4);
+                }
+
+                if (IPAddress.TryParse(await _httpClient.GetStringAsync("https://api64.ipify.org"), out var currentIpAddressV6))
+                {
+                    if (currentIpAddressV6.AddressFamily == AddressFamily.InterNetworkV6)
+                    {
+                        _log.LogInformation($"The current public ip v6 address is: {currentIpAddressV6}");
+                        publicAddresses.Add(currentIpAddressV6);
+                    }
+                }
+
+                return publicAddresses;
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Error while getting current public ip.");
+
+                return [];
+            }
+        }
+
+        private async Task<ResponseDataInfoDnsRecords?> GetInfoDnsRecords(string apiSessionId, string domain)
+        {
+            try
+            {
+                var action = new RequestActionInfoDnsRecords
+                             {
+                                 Action = "infoDnsRecords",
+                                 Param = new InfoDnsRecords
+                                         {
+                                             ApiKey         = _apiLoginCredentials.ApiKey,
+                                             ApiSessionId   = apiSessionId,
+                                             CustomerNumber = _apiLoginCredentials.CustomerNumber,
+                                             DomainName     = domain
+                                         }
+                             };
+
+                var actionJson = JsonSerializer.Serialize(action, SourceGenerationContext.Default.RequestActionInfoDnsRecords);
+
+                using (var request = new HttpRequestMessage(HttpMethod.Post, ""))
+                {
+                    request.Version = HttpVersion.Version20;
+                    request.Content = new StringContent(actionJson, Encoding.UTF8, "application/json");
+
+                    using (var response = await _httpClient.SendAsync(request))
+                    {
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var responseData = JsonSerializer.Deserialize(
+                                await response.Content.ReadAsStringAsync(), SourceGenerationContext.Default.ResponseDataInfoDnsRecords);
+
+                            if (responseData is { Status: "success" })
+                            {
+                                _log.LogInformation($"Requesting dns records for domain \"{domain}\" was successful.");
+
+                                return responseData;
+                            }
+
+                            _log.LogError($"Requesting dns records for domain \"{domain}\" was failed.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Error while request domain dns records.");
+            }
+
+            return null;
+        }
+
+        private async Task<string?> Login()
+        {
+            try
+            {
+                var action = new RequestActionLogin
+                             {
+                                 Action = "login",
+                                 Param  = _apiLoginCredentials
+                             };
+
+                var actionJson = JsonSerializer.Serialize(action, SourceGenerationContext.Default.RequestActionLogin);
+
+                using (var request = new HttpRequestMessage(HttpMethod.Post, ""))
+                {
+                    request.Version = HttpVersion.Version20;
+                    request.Content = new StringContent(actionJson, Encoding.UTF8, "application/json");
+
+                    using (var response = await _httpClient.SendAsync(request))
+                    {
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var responseData = JsonSerializer
+                                .Deserialize(await response.Content.ReadAsStringAsync(),
+                                             SourceGenerationContext.Default.ResponseDataLogin);
+
+                            if (responseData is { Status: "success" })
+                            {
+                                _log.LogInformation("The api login was successful.");
+
+                                return responseData.ResponseData.ApiSessionId;
+                            }
+
+                            if (responseData != null && responseData.ShortMessage != "success")
+                            {
+                                _log.LogError($"The api login was failed. Reason: {responseData.ShortMessage}");
+                            }
+                            else
+                            {
+                                _log.LogError("The api login was failed.");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Error while API login.");
+            }
+
+            return null;
+        }
+
+        private async Task Logout(string apiSessionId)
+        {
+            try
+            {
+                var action = new RequestActionLogout
+                {
+                    Action = "logout",
+                    Param = new Logout
+                    {
+                        ApiKey = _apiLoginCredentials.ApiKey,
+                        ApiSessionId = apiSessionId,
+                        CustomerNumber = _apiLoginCredentials.CustomerNumber
+                    }
+                };
+
+                var actionJson = JsonSerializer.Serialize(action, SourceGenerationContext.Default.RequestActionLogout);
+
+                using (var request = new HttpRequestMessage(HttpMethod.Post, ""))
+                {
+                    request.Version = HttpVersion.Version20;
+                    request.Content = new StringContent(actionJson, Encoding.UTF8, "application/json");
+
+                    using (var response = await _httpClient.SendAsync(request))
+                    {
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var responseData = JsonSerializer
+                                .Deserialize(await response.Content.ReadAsStringAsync(),
+                                             SourceGenerationContext.Default.ResponseDataLogout);
+
+                            if (responseData is { Status: "success" })
+                            {
+                                _log.LogInformation("The api logout was successful.");
+
+                                return;
+                            }
+
+                            _log.LogError("The api logout was failed.");
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+
+            {
+                _log.LogError(ex, "Error while API login.");
+            }
         }
 
     #endregion
