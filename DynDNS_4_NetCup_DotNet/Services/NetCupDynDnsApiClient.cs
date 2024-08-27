@@ -231,7 +231,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                 {
                     if (currentIp.ToString() == destinationIp.ToString())
                     {
-                        _log.LogInformation($"The ip of dns record \"{dnsRecord.Hostname}\" with type \"{dnsRecord.Type}\" has not changed.");
+                        _log.LogDebug($"The ip of dns record \"{dnsRecord.Hostname}\" with type \"{dnsRecord.Type}\" has not changed.");
 
                         continue;
                     }
@@ -258,7 +258,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
                 if (IPAddress.TryParse(await _httpClient.GetStringAsync("https://api.ipify.org"), out var currentIpAddressV4))
                 {
-                    _log.LogInformation($"The current public ip v4 address is: {currentIpAddressV4}");
+                    _log.LogDebug($"The current public ip v4 address is: {currentIpAddressV4}");
                     publicAddresses.Add(currentIpAddressV4);
                 }
 
@@ -266,7 +266,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                 {
                     if (currentIpAddressV6.AddressFamily == AddressFamily.InterNetworkV6)
                     {
-                        _log.LogInformation($"The current public ip v6 address is: {currentIpAddressV6}");
+                        _log.LogDebug($"The current public ip v6 address is: {currentIpAddressV6}");
                         publicAddresses.Add(currentIpAddressV6);
                     }
                 }
@@ -313,7 +313,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
                             if (responseData is { Status: "success" })
                             {
-                                _log.LogInformation($"Requesting dns records for domain \"{domain}\" was successful.");
+                                _log.LogDebug($"Requesting dns records for domain \"{domain}\" was successful.");
 
                                 return responseData;
                             }
@@ -358,7 +358,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
                             if (responseData is { Status: "success" })
                             {
-                                _log.LogInformation("The api login was successful.");
+                                _log.LogDebug("The api login was successful.");
 
                                 return responseData.ResponseData.ApiSessionId;
                             }
@@ -415,7 +415,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
                             if (responseData is { Status: "success" })
                             {
-                                _log.LogInformation("The api logout was successful.");
+                                _log.LogDebug("The api logout was successful.");
 
                                 return;
                             }
