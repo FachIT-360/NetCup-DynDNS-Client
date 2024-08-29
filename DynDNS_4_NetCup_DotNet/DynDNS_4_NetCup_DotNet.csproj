@@ -5,14 +5,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
-    <PublishAot>true</PublishAot>
+    <PublishAot>false</PublishAot>
     <UserSecretsId>dotnet-DynDNS_4_NetCup_DotNet-e3309b49-bd15-4a7d-b3ae-9bbf70c6803c</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <AssemblyName>netcup-dyndns</AssemblyName>
     <RootNamespace>FachIT360.Utils.Dns.NetCup</RootNamespace>
-    <AssemblyVersion>1.1.0.2838</AssemblyVersion>
-    <FileVersion>1.1.0.2838</FileVersion>
-    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.11.8923</AssemblyVersion>
+    <FileVersion>1.1.11.8923</FileVersion>
+    <Version>1.1.11</Version>
     <!--<EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>-->
     
   </PropertyGroup>
@@ -54,5 +54,11 @@
 
   <ItemGroup>
     <Folder Include="Models\Settings\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="authorized_keys">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
