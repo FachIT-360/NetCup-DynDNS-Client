@@ -1,7 +1,5 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 
-using FachIT360.Utils.Dns.NetCup.Models.Settings;
 using FachIT360.Utils.Dns.NetCup.Services;
 
 using Microsoft.Extensions.Logging.Console;
@@ -25,7 +23,6 @@ namespace FachIT360.Utils.Dns.NetCup
                                          options.SingleLine = false;
                                      });
             
-            builder.Services.Configure<NetCupApi>(builder.Configuration.GetSection("NetCupApi"));
             builder.Services.AddHttpClient<NetCupDynDnsApiClient>()
                    .ConfigureHttpClient(client =>
                                         {

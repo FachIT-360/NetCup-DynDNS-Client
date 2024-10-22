@@ -113,7 +113,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
             }
             catch (Exception ex)
             {
-                log.LogError(ex, "Error while initialize NetCupDynDnsApiClient. Check the exception details in this log event.");
+                log.LogError($"Error while initialize NetCupDynDnsApiClient. Check the exception details in this log event. Exception Message: {ex.Message}");
             }
         }
 
@@ -194,7 +194,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                         }
                         catch (Exception ex)
                         {
-                            _log.LogError(ex, "Error while dns records update.");
+                            _log.LogError($"Error while dns records update. Exception Message: {ex.Message}");
                         }
                     }
                 }
@@ -203,8 +203,10 @@ namespace FachIT360.Utils.Dns.NetCup.Services
             }
         }
 
-        private bool CurrentPublicIpChanged(List<IPAddress> currentPublicIps, ResponseDataInfoDnsRecords infoDnsRecords,
-                                            IEnumerable<string> recordNamesToUpdate, out List<DnsRecord> recordsToUpdate)
+        private bool CurrentPublicIpChanged(List<IPAddress> currentPublicIps, 
+                                            ResponseDataInfoDnsRecords infoDnsRecords,
+                                            IEnumerable<string> recordNamesToUpdate, 
+                                            out List<DnsRecord> recordsToUpdate)
         {
             var hasChanged = false;
             recordsToUpdate = [];
@@ -275,7 +277,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Error while getting current public ip.");
+                _log.LogError($"Error while getting current public ip. Exception Message: {ex.Message}");
 
                 return [];
             }
@@ -325,7 +327,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Error while request domain dns records.");
+                _log.LogError($"Error while request domain dns records. Exception Message: {ex.Message}");
             }
 
             return null;
@@ -377,7 +379,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Error while API login.");
+                _log.LogError($"Error while API login. Exception Message: {ex.Message}");
             }
 
             return null;
@@ -429,7 +431,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
             catch (Exception ex)
 
             {
-                _log.LogError(ex, "Error while API login.");
+                _log.LogError($"Error while API login. Exception Message: {ex.Message}");
             }
         }
 

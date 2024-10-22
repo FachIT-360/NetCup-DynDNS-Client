@@ -5,14 +5,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
-    <PublishAot>false</PublishAot>
+    <PublishAot>true</PublishAot>
     <UserSecretsId>dotnet-DynDNS_4_NetCup_DotNet-e3309b49-bd15-4a7d-b3ae-9bbf70c6803c</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <AssemblyName>netcup-dyndns</AssemblyName>
     <RootNamespace>FachIT360.Utils.Dns.NetCup</RootNamespace>
-    <AssemblyVersion>1.1.11.8923</AssemblyVersion>
-    <FileVersion>1.1.11.8923</FileVersion>
-    <Version>1.1.11</Version>
+    <AssemblyVersion>1.1.12.4116</AssemblyVersion>
+    <FileVersion>1.1.12.4116</FileVersion>
+    <Version>1.1.12</Version>
     <!--<EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>-->
     
   </PropertyGroup>
@@ -50,10 +50,6 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\Settings\" />
   </ItemGroup>
 
   <ItemGroup>

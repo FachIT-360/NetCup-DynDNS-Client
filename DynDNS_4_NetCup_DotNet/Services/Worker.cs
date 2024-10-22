@@ -1,6 +1,7 @@
 namespace FachIT360.Utils.Dns.NetCup.Services
 {
     public class Worker(
+        ILogger<Worker> log,
         IHostApplicationLifetime hostLifetime,
         NetCupDynDnsApiClient apiClient) : BackgroundService
     {
@@ -10,17 +11,24 @@ namespace FachIT360.Utils.Dns.NetCup.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                // Wait for completely application is started
-                if (!hostLifetime.ApplicationStarted.IsCancellationRequested)
+                try
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+                    // Wait for completely application is started
+                    if (!hostLifetime.ApplicationStarted.IsCancellationRequested)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
 
-                    continue;
+                        continue;
+                    }
+
+                    await apiClient.UpdateDynDns();
+
+                    await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
                 }
-
-                await apiClient.UpdateDynDns();
-
-                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+                catch (Exception ex)
+                {
+                    log.LogError($"An error occurred while updating the DynDNS records. Exception Message: {ex.Message}");
+                }
             }
         }
 
