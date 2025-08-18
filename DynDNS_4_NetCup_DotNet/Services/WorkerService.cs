@@ -4,8 +4,8 @@
 
 namespace FachIT360.Utils.Dns.NetCup.Services
 {
-    public class Worker(
-        ILogger<Worker> log,
+    public class WorkerService(
+        ILogger<WorkerService> log,
         IHostApplicationLifetime hostLifetime,
         NetCupDynDnsApiClient apiClient) : BackgroundService
     {

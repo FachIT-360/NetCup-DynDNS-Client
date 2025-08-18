@@ -36,7 +36,7 @@ namespace FachIT360.Utils.Dns.NetCup
                                             client.BaseAddress           = new Uri("https://ccp.netcup.net/run/webservice/servers/endpoint.php?JSON");
                                         });
 
-            builder.Services.AddHostedService<Worker>();
+            builder.Services.AddHostedService<WorkerService>();
 
             var host = builder.Build();
 
