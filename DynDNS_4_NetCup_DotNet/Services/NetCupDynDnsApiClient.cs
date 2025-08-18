@@ -1,4 +1,8 @@
-﻿using System.Collections;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// (C) 2025 by FachIT360 - Marcus Reinhart
+// --------------------------------------------------------------------------------------------------------------------
+
+using System.Collections;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -16,10 +20,10 @@ namespace FachIT360.Utils.Dns.NetCup.Services
     {
     #region Constants - Static fields - Fields
 
-        private readonly Login                            _apiLoginCredentials = null!;
-        private readonly Dictionary<string, List<string>> _domains             = new();
-        private readonly HttpClient                       _httpClient          = null!;
-        private readonly ILogger<NetCupDynDnsApiClient>   _log                 = null!;
+        private readonly Dictionary<string, List<string>> _domains    = new();
+        private readonly Login                            _apiLoginCredentials;
+        private readonly HttpClient                       _httpClient;
+        private readonly ILogger<NetCupDynDnsApiClient>   _log;
 
     #endregion
 
@@ -56,6 +60,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                                                                           nameof(config), "The CustomerNumber parameter in the config is not set.")
                                        };
 
+                // Get domains from appsettings
                 foreach (var domain in config.GetSection("NetCupApi:Domains").GetChildren())
                 {
                     _domains.Add(domain.Key, new List<string>(domain.GetChildren()
@@ -64,13 +69,12 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                                                                     .Distinct()));
                 }
 
-                foreach (DictionaryEntry environmentVariable in Environment.GetEnvironmentVariables())
+                // Get domains from environment variables
+                foreach (var environmentVariable in Environment
+                                                    .GetEnvironmentVariables()
+                                                    .Cast<DictionaryEntry>()
+                                                    .Where(environmentVariable => environmentVariable.Key.ToString()!.StartsWith("NETCUP_DOMAINS")))
                 {
-                    if (!environmentVariable.Key.ToString()!.StartsWith("NETCUP_DOMAINS"))
-                    {
-                        continue;
-                    }
-
                     if (environmentVariable.Value == null)
                     {
                         continue;
@@ -113,7 +117,10 @@ namespace FachIT360.Utils.Dns.NetCup.Services
             }
             catch (Exception ex)
             {
-                log.LogError($"Error while initialize NetCupDynDnsApiClient. Check the exception details in this log event. Exception Message: {ex.Message}");
+                log.LogError(
+                    $"Error while initialize NetCupDynDnsApiClient. Check the exception details in this log event. Exception Message: {ex.Message}");
+
+                throw;
             }
         }
 
@@ -203,9 +210,9 @@ namespace FachIT360.Utils.Dns.NetCup.Services
             }
         }
 
-        private bool CurrentPublicIpChanged(List<IPAddress> currentPublicIps, 
+        private bool CurrentPublicIpChanged(List<IPAddress> currentPublicIps,
                                             ResponseDataInfoDnsRecords infoDnsRecords,
-                                            IEnumerable<string> recordNamesToUpdate, 
+                                            IEnumerable<string> recordNamesToUpdate,
                                             out List<DnsRecord> recordsToUpdate)
         {
             var hasChanged = false;
@@ -310,8 +317,10 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                     {
                         if (response.IsSuccessStatusCode)
                         {
+                            var jsonResponse = await response.Content.ReadAsStringAsync();
+
                             var responseData = JsonSerializer.Deserialize(
-                                await response.Content.ReadAsStringAsync(), SourceGenerationContext.Default.ResponseDataInfoDnsRecords);
+                                jsonResponse, SourceGenerationContext.Default.ResponseDataInfoDnsRecords);
 
                             if (responseData is { Status: "success" })
                             {
@@ -390,15 +399,15 @@ namespace FachIT360.Utils.Dns.NetCup.Services
             try
             {
                 var action = new RequestActionLogout
-                {
-                    Action = "logout",
-                    Param = new Logout
-                    {
-                        ApiKey = _apiLoginCredentials.ApiKey,
-                        ApiSessionId = apiSessionId,
-                        CustomerNumber = _apiLoginCredentials.CustomerNumber
-                    }
-                };
+                             {
+                                 Action = "logout",
+                                 Param = new Logout
+                                         {
+                                             ApiKey         = _apiLoginCredentials.ApiKey,
+                                             ApiSessionId   = apiSessionId,
+                                             CustomerNumber = _apiLoginCredentials.CustomerNumber
+                                         }
+                             };
 
                 var actionJson = JsonSerializer.Serialize(action, SourceGenerationContext.Default.RequestActionLogout);
 

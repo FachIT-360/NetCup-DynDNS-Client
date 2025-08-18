@@ -1,7 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ResponseDataLogout.cs" company="REGIOCAST GmbH & Co. KG">
-// (C) 2024 by REGIOCAST GmbH und Co. KG
-// </copyright>
+// (C) 2025 by FachIT360 - Marcus Reinhart
 // --------------------------------------------------------------------------------------------------------------------
 
 using FachIT360.Utils.Dns.NetCup.Models.Abstract;

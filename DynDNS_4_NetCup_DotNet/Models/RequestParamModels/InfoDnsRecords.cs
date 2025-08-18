@@ -1,27 +1,27 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DnsRecordInfo.cs" company="REGIOCAST GmbH & Co. KG">
-// (C) 2024 by REGIOCAST GmbH und Co. KG
-// </copyright>
+// (C) 2025 by FachIT360 - Marcus Reinhart
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Text.Json.Serialization;
-
-using FachIT360.Utils.Dns.NetCup.Models.ResponseDataModels;
 
 namespace FachIT360.Utils.Dns.NetCup.Models.RequestParamModels
 {
     public class InfoDnsRecords
     {
-        [JsonPropertyName("domainname")]
-        public string DomainName { get; set; } = null!;
-
-        [JsonPropertyName("customernumber")]
-        public uint CustomerNumber { get; set; }
+    #region Properties
 
         [JsonPropertyName("apikey")]
         public string ApiKey { get; set; } = null!;
 
         [JsonPropertyName("apisessionid")]
         public string ApiSessionId { get; set; } = null!;
+
+        [JsonPropertyName("customernumber")]
+        public uint CustomerNumber { get; set; }
+
+        [JsonPropertyName("domainname")]
+        public string DomainName { get; set; } = null!;
+
+    #endregion
     }
 }

@@ -8,14 +8,14 @@
       "dotnetRunMessages": true
     },
     "Container (Dockerfile)": {
-        "commandName": "Docker",
-        "environmentVariables": {
-            "NETCUP_LOGIN_APIKEY": "abc",
-            "NETCUP_LOGIN_APIPASSWORD": "abc",
-            "NETCUP_LOGIN_CUSTOMERNUMBER": "123",
-            "NETCUP_DOMAINS_1": "fachit360.de|home|db|test|home|marcus|home|Beatrice|Leander",
-            "NETCUP_DOMAINS_2": "ip-me.de|home|db|home|db|test|home|marcus|home|Beatrice|Leander"
-        }
+      "commandName": "Docker",
+      "environmentVariables": {
+        "NETCUP_LOGIN_APIKEY": "abc",
+        "NETCUP_LOGIN_APIPASSWORD": "abc",
+        "NETCUP_LOGIN_CUSTOMERNUMBER": "123",
+        "NETCUP_DOMAINS_1": "fachit360.de|home|db|test|home|marcus|home|Beatrice|Leander",
+        "NETCUP_DOMAINS_2": "ip-me.de|home|db|home|db|test|home|marcus|home|Beatrice|Leander"
+      }
     }
   },
   "$schema": "http://json.schemastore.org/launchsettings.json"
