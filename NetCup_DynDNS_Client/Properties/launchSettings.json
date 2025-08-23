@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "DynDNS_4_NetCup_DotNet": {
+      "commandName": "Project",
+      "environmentVariables": { },
+      "dotnetRunMessages": true
+    }
+  },
+  "$schema": "https://json.schemastore.org/launchsettings.json"
+}
