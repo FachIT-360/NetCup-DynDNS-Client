@@ -2,8 +2,6 @@
 // (C) 2025 by FachIT360 - Marcus Reinhart
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Text.Json.Serialization;
-
 using Newtonsoft.Json;
 
 namespace FachIT360.Utils.Dns.NetCup.Models.RequestParamModels
@@ -12,15 +10,12 @@ namespace FachIT360.Utils.Dns.NetCup.Models.RequestParamModels
     {
     #region Properties
 
-        [JsonPropertyName("apikey")]
         [JsonProperty(PropertyName = "apikey")]
         public string? ApiKey { get; set; }
 
-        [JsonPropertyName("apipassword")]
         [JsonProperty(PropertyName = "apipassword")]
-        public string? ApiPassword { get; set; } = null!;
+        public string? ApiPassword { get; set; }
 
-        [JsonPropertyName("customernumber")]
         [JsonProperty(PropertyName = "customernumber")]
         public uint? CustomerNumber { get; set; }
 

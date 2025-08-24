@@ -50,12 +50,16 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                     // Get the api client
                     await using (var scope = _serviceProvider.CreateAsyncScope())
                     {
-                        var apiClient = scope.ServiceProvider.GetRequiredService<NetCupDynDnsApiClient>();
+                        var apiClient        = scope.ServiceProvider.GetRequiredService<NetCupDynDnsApiClient>();
                         var netCupApiOptions = scope.ServiceProvider.GetRequiredService<IOptionsMonitor<NetCupApi>>();
                         await apiClient.UpdateDynDns();
-                        
+
                         await Task.Delay(netCupApiOptions.CurrentValue.RequestInterval!.Value, stoppingToken);
                     }
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
                 }
                 catch (Exception ex)
                 {

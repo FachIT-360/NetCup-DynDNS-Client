@@ -15,19 +15,18 @@ using Microsoft.Extensions.Options;
 
 using Newtonsoft.Json;
 
-using JsonSerializer = System.Text.Json.JsonSerializer;
-using SourceGenerationContext = FachIT360.Utils.Dns.NetCup.JsonSerializerContext.SourceGenerationContext;
-
 namespace FachIT360.Utils.Dns.NetCup.Services
 {
     public class NetCupDynDnsApiClient
     {
     #region Constants - Static fields - Fields
 
-        private readonly Dictionary<string, List<string>> _domains = new();
         private readonly HttpClient                       _httpClient;
         private readonly ILogger<NetCupDynDnsApiClient>   _log;
         private readonly IOptionsMonitor<NetCupApi>       _netCupApiOptions;
+        
+        private const string JsonMimeType = "application/json";
+        private const string SuccessState = "success";
 
     #endregion
 
@@ -47,15 +46,16 @@ namespace FachIT360.Utils.Dns.NetCup.Services
             }
             catch (Exception ex)
             {
-                log.LogError(
-                    $"Error while initialize NetCupDynDnsApiClient. Check the exception details in this log event. Exception Message: {ex.Message}");
+                log.LogError(ex,
+                    "Error while initialize NetCupDynDnsApiClient. Check the exception details in this log event. Exception Message: {ExMessage}",
+                    ex.Message);
 
                 throw;
             }
         }
 
     #endregion
-
+        
     #region Methods
 
         public async Task UpdateDynDns()
@@ -102,36 +102,36 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                                                      }
                                          };
 
-                            var actionJson = JsonSerializer.Serialize(action, SourceGenerationContext.Default.RequestActionUpdateDnsRecords);
-
+                            var actionJson = JsonConvert.SerializeObject(action);
+                            
                             using (var request = new HttpRequestMessage(HttpMethod.Post, ""))
                             {
                                 request.Version = HttpVersion.Version20;
-                                request.Content = new StringContent(actionJson, Encoding.UTF8, "application/json");
+                                request.Content = new StringContent(actionJson, Encoding.UTF8, JsonMimeType);
 
                                 using (var response = await _httpClient.SendAsync(request))
                                 {
                                     if (response.IsSuccessStatusCode)
                                     {
-                                        var responseData = JsonSerializer
-                                            .Deserialize(await response.Content.ReadAsStringAsync(),
-                                                         SourceGenerationContext.Default.ResponseDataUpdateDnsRecords);
+                                        var jsonResponse = await response.Content.ReadAsStringAsync();
+                                        
+                                        var responseData = JsonConvert.DeserializeObject<ResponseDataUpdateDnsRecords>(jsonResponse);
 
-                                        if (responseData is { Status: "success" })
+                                        if (responseData is { Status: SuccessState })
                                         {
-                                            _log.LogInformation($"The dns records update for domain \"{domain.Key}\" was successful.");
+                                            _log.LogInformation("The dns records update for domain \"{DomainKey}\" was successful.", domain.Key);
 
                                             continue;
                                         }
 
-                                        _log.LogInformation($"The dns records update for domain \"{domain.Key}\" was failed.");
+                                        _log.LogInformation("The dns records update for domain \"{DomainKey}\" was failed.", domain.Key);
                                     }
                                 }
                             }
                         }
                         catch (Exception ex)
                         {
-                            _log.LogError($"Error while dns records update. Exception Message: {ex.Message}");
+                            _log.LogError(ex, "Error while dns records update. Exception Message: {ExMessage}", ex.Message);
                         }
                     }
                 }
@@ -170,13 +170,13 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                 {
                     if (currentIp.ToString() == destinationIp.ToString())
                     {
-                        _log.LogDebug($"The ip of dns record \"{dnsRecord.Hostname}\" with type \"{dnsRecord.Type}\" has not changed.");
+                        _log.LogDebug("The ip of dns record \"{DnsRecordHostname}\" with type \"{DnsRecordType}\" has not changed.", dnsRecord.Hostname, dnsRecord.Type);
 
                         continue;
                     }
 
                     _log.LogInformation(
-                        $"The ip of dns record \"{dnsRecord.Hostname}\" with type \"{dnsRecord.Type}\" has changed to \"{currentIp}\".");
+                        "The ip of dns record \"{DnsRecordHostname}\" with type \"{DnsRecordType}\" has changed to \"{CurrentIp}\".", dnsRecord.Hostname, dnsRecord.Type, currentIp);
 
                     dnsRecord.Destination = currentIp.ToString();
 
@@ -195,13 +195,13 @@ namespace FachIT360.Utils.Dns.NetCup.Services
             {
                 var publicAddresses = new List<IPAddress>();
 
-                if (IPAddress.TryParse(await _httpClient.GetStringAsync("https://api.ipify.org"), out var currentIpAddressV4))
+                if (IPAddress.TryParse(await _httpClient.GetStringAsync(_netCupApiOptions.CurrentValue.MyIp4ApiUrl), out var currentIpAddressV4))
                 {
                     _log.LogDebug("The current public ip v4 address is: {CurrentIpAddressV4}", currentIpAddressV4);
                     publicAddresses.Add(currentIpAddressV4);
                 }
 
-                if (IPAddress.TryParse(await _httpClient.GetStringAsync("https://api64.ipify.org"), out var currentIpAddressV6) &&
+                if (IPAddress.TryParse(await _httpClient.GetStringAsync(_netCupApiOptions.CurrentValue.MyIp6ApiUrl), out var currentIpAddressV6) &&
                     currentIpAddressV6.AddressFamily == AddressFamily.InterNetworkV6)
                 {
                     _log.LogDebug("The current public ip v6 address is: {CurrentIpAddressV6}", currentIpAddressV6);
@@ -239,7 +239,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                 using (var request = new HttpRequestMessage(HttpMethod.Post, ""))
                 {
                     request.Version = HttpVersion.Version20;
-                    request.Content = new StringContent(actionJson, Encoding.UTF8, "application/json");
+                    request.Content = new StringContent(actionJson, Encoding.UTF8, JsonMimeType);
 
                     using (var response = await _httpClient.SendAsync(request))
                     {
@@ -249,7 +249,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
                             var responseData = JsonConvert.DeserializeObject<ResponseDataInfoDnsRecords>(jsonResponse);
 
-                            if (responseData is { Status: "success" })
+                            if (responseData is { Status: SuccessState })
                             {
                                 _log.LogDebug("Requesting dns records for domain \"{Domain}\" was successful.", domain);
 
@@ -284,7 +284,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                 using (var request = new HttpRequestMessage(HttpMethod.Post, ""))
                 {
                     request.Version = HttpVersion.Version20;
-                    request.Content = new StringContent(actionJson, Encoding.UTF8, "application/json");
+                    request.Content = new StringContent(actionJson, Encoding.UTF8, JsonMimeType);
 
                     using (var response = await _httpClient.SendAsync(request))
                     {
@@ -294,14 +294,14 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
                             var responseData = JsonConvert.DeserializeObject<ResponseDataLogin>(jsonResponse);
 
-                            if (responseData is { Status: "success" })
+                            if (responseData is { Status: SuccessState })
                             {
                                 _log.LogDebug("The api login was successful.");
 
                                 return responseData.ResponseData?.ApiSessionId;
                             }
 
-                            if (responseData != null && responseData.LongMessage != "success")
+                            if (responseData != null && responseData.LongMessage != SuccessState)
                             {
                                 _log.LogError("The api login was failed. Reason: {ResponseDataLongMessage}", responseData.LongMessage);
                             }
@@ -336,22 +336,22 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                                          }
                              };
 
-                var actionJson = JsonSerializer.Serialize(action, SourceGenerationContext.Default.RequestActionLogout);
+                var actionJson = JsonConvert.SerializeObject(action);
 
                 using (var request = new HttpRequestMessage(HttpMethod.Post, ""))
                 {
                     request.Version = HttpVersion.Version20;
-                    request.Content = new StringContent(actionJson, Encoding.UTF8, "application/json");
+                    request.Content = new StringContent(actionJson, Encoding.UTF8, JsonMimeType);
 
                     using (var response = await _httpClient.SendAsync(request))
                     {
                         if (response.IsSuccessStatusCode)
                         {
-                            var responseData = JsonSerializer
-                                .Deserialize(await response.Content.ReadAsStringAsync(),
-                                             SourceGenerationContext.Default.ResponseDataLogout);
-
-                            if (responseData is { Status: "success" })
+                            var jsonResponse = await response.Content.ReadAsStringAsync();
+                            
+                            var responseData = JsonConvert.DeserializeObject<ResponseDataLogout>(jsonResponse);
+                            
+                            if (responseData is { Status: SuccessState })
                             {
                                 _log.LogDebug("The api logout was successful.");
 

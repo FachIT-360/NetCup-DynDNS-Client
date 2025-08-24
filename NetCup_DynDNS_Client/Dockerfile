@@ -11,23 +11,27 @@ RUN apt-get update \
     clang zlib1g-dev
 ARG BUILD_CONFIGURATION=Debug
 WORKDIR /src
-COPY ["DynDNS_4_NetCup_DotNet/DynDNS_4_NetCup_DotNet.csproj", "DynDNS_4_NetCup_DotNet/"]
-RUN dotnet restore "./DynDNS_4_NetCup_DotNet/DynDNS_4_NetCup_DotNet.csproj"
+COPY ["NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj", "NetCup_DynDNS_Client/"]
+RUN dotnet restore "./NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj"
 COPY . .
-WORKDIR "/src/DynDNS_4_NetCup_DotNet"
-RUN dotnet build "./DynDNS_4_NetCup_DotNet.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/NetCup_DynDNS_Client"
+
+RUN dotnet tool install --global dotnet-sonarscanner
+RUN dotnet sonarscanner begin /o:"fachit360" /k:"FachIT360_NetCup-DynDns-Client" /d:sonar.token="038af00d18a9739dd82e0a410e7bdea875561062" && \
+    dotnet build "./NetCup_DynDNS_Client.csproj" -c "$BUILD_CONFIGURATION" -o /app/build && \
+    dotnet sonarscanner end /d:sonar.token="038af00d18a9739dd82e0a410e7bdea875561062"    
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Debug
-RUN dotnet publish "./DynDNS_4_NetCup_DotNet.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=true
+RUN dotnet publish "./NetCup_DynDNS_Client.csproj" -c "$BUILD_CONFIGURATION" -o /app/publish /p:UseAppHost=true
 
 FROM mcr.microsoft.com/dotnet/runtime-deps:9.0 AS final
 WORKDIR /app
 
 COPY --from=publish /app/publish .
 
-ENV NETCUP_LOGIN_APIKEY= 
-ENV NETCUP_LOGIN_APIPASSWORD=
-ENV NETCUP_LOGIN_CUSTOMERNUMBER=
+ENV NETCUP_LOGIN_APIKEY=""
+ENV NETCUP_LOGIN_APIPASSWORD=""
+ENV NETCUP_LOGIN_CUSTOMERNUMBER=""
 
 ENTRYPOINT ["./netcup-dyndns"]

@@ -16,6 +16,10 @@ namespace FachIT360.Utils.Dns.NetCup.Models.AppSettings
 
         public Login Login { get; set; } = new();
 
+        public string MyIp4ApiUrl { get; set; } = null!;
+
+        public string MyIp6ApiUrl { get; set; } = null!;
+
         public TimeSpan? RequestInterval { get; set; } = TimeSpan.FromMinutes(5);
 
     #endregion

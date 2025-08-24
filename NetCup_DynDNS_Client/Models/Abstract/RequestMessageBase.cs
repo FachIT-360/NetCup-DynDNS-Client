@@ -2,8 +2,6 @@
 // (C) 2025 by FachIT360 - Marcus Reinhart
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Text.Json.Serialization;
-
 using Newtonsoft.Json;
 
 namespace FachIT360.Utils.Dns.NetCup.Models.Abstract
@@ -12,7 +10,6 @@ namespace FachIT360.Utils.Dns.NetCup.Models.Abstract
     {
     #region Properties
 
-        [JsonPropertyName("action")]
         [JsonProperty(PropertyName = "action")]
         public string Action { get; set; } = null!;
 

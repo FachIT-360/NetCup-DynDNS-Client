@@ -5,7 +5,6 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <InvariantGlobalization>true</InvariantGlobalization>
-        <PublishAot>true</PublishAot>
         <UserSecretsId>dotnet-DynDNS_4_NetCup_DotNet-e3309b49-bd15-4a7d-b3ae-9bbf70c6803c</UserSecretsId>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <AssemblyName>netcup-dyndns</AssemblyName>
@@ -14,7 +13,10 @@
         <FileVersion>1.1.13.4116</FileVersion>
         <Version>1.1.13</Version>
         <LangVersion>default</LangVersion>
-
+        <!-- Publish Settings -->
+        <PublishAot>true</PublishAot>
+        <SelfContained>true</SelfContained>
+        <PublishSingleFile>true</PublishSingleFile>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
