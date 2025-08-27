@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace FachIT360.Utils.Dns.NetCup
 {
-    internal class Program
+    public class Program
     {
     #region Constructors and Destructors
 
@@ -22,14 +22,21 @@ namespace FachIT360.Utils.Dns.NetCup
 
     #region Methods
 
-        [UnconditionalSuppressMessage(
-            "AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.",
-            Justification = "<Pending>")]
-        [UnconditionalSuppressMessage(
-            "Trimming",
-            "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
-            Justification = "<Pending>")]
         public static async Task<int> Main(string[] args)
+        {
+            var host = await Bootstrap(args);
+
+            if (host == null)
+            {
+                return Environment.ExitCode;
+            }
+            
+            await host.RunAsync();
+
+            return Environment.ExitCode;
+        }
+
+        public static async Task<IHost?> Bootstrap(string[] args)
         {
             var builder = Host.CreateApplicationBuilder(args);
 
@@ -59,52 +66,59 @@ namespace FachIT360.Utils.Dns.NetCup
                 _ = host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
 
                 // Check ApiKey
-                host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiKey =
-                    !string.IsNullOrWhiteSpace(host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiKey)
-                        ? host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiKey
-                        : !string.IsNullOrWhiteSpace(builder.Configuration["NETCUP_LOGIN_APIKEY"])
-                            ? builder.Configuration["NETCUP_LOGIN_APIKEY"]
-                            : throw new ArgumentNullException(nameof(builder.Configuration), "The ApiKey parameter in the config is not set.");
+                if (string.IsNullOrWhiteSpace(host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiKey))
+                {
+                    host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiKey = builder.Configuration["NETCUP_LOGIN_APIKEY"];
 
+                    if (string.IsNullOrWhiteSpace(host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiKey))
+                    {
+                        Environment.ExitCode = 1;
+                    }
+                }
+                
                 // Check ApiPassword
-                host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiPassword =
-                    !string.IsNullOrWhiteSpace(host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiPassword)
-                        ? host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiPassword
-                        : !string.IsNullOrWhiteSpace(builder.Configuration["NETCUP_LOGIN_APIPASSWORD"])
-                            ? builder.Configuration["NETCUP_LOGIN_APIPASSWORD"]
-                            : throw new ArgumentNullException(nameof(builder.Configuration), "The ApiPassword parameter in the config is not set.");
+                if (string.IsNullOrWhiteSpace(host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiPassword))
+                {
+                    host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiPassword = builder.Configuration["NETCUP_LOGIN_APIPASSWORD"];
 
+                    if (string.IsNullOrWhiteSpace(host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiPassword))
+                    {
+                        Environment.ExitCode = 1;   
+                    }
+                }
+                
                 // Check CustomerNumber
-                host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.CustomerNumber =
-                    host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.CustomerNumber.HasValue
-                        ? host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.CustomerNumber
-                        : uint.TryParse(builder.Configuration["NETCUP_LOGIN_CUSTOMERNUMBER"], out var customerNumber)
-                            ? customerNumber
-                            : throw new ArgumentNullException("NETCUP_LOGIN_CUSTOMERNUMBER",
-                                                              "The NetCup CustomerNumber in the config is not set correctly.");
+                if (!host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.CustomerNumber.HasValue)
+                {
+                    if (uint.TryParse(builder.Configuration["NETCUP_LOGIN_CUSTOMERNUMBER"], out var customerNumber))
+                    {
+                        host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.CustomerNumber = customerNumber;
+                    }
+                    else
+                    {
+                        Environment.ExitCode = 1;
+                    }
+                }
 
                 // Check EndpointUrl
-                host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.EndpointUrl =
-                    host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.EndpointUrl != null &&
-                    host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.EndpointUrl!.IsAbsoluteUri
-                        ? host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.EndpointUrl
-                        : throw new ArgumentNullException(nameof(NetCupApi.EndpointUrl),
-                                                          "The NetCup EndpointUrl in the config is not set correctly.");
+                if (host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.EndpointUrl == null ||
+                    !host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.EndpointUrl!.IsAbsoluteUri)
+                {
+                    Environment.ExitCode = 1;
+                }
 
                 logger.LogInformation("NetCupApi configuration loaded successfully.");
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error while loading NetCupApi configuration.");
+                logger.LogError(ex, "Error while bootstrap application.");
                 await host.StopAsync();
                 Environment.ExitCode = 1;
 
-                return Environment.ExitCode;
+                return null;
             }
-
-            await host.RunAsync();
-
-            return Environment.ExitCode;
+            
+            return host;
         }
 
     #endregion

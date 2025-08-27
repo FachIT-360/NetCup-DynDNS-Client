@@ -14,7 +14,7 @@
         <Version>1.1.13</Version>
         <LangVersion>default</LangVersion>
         <!-- Publish Settings -->
-        <PublishAot>true</PublishAot>
+        <!-- <PublishAot>true</PublishAot> -->
         <SelfContained>true</SelfContained>
         <PublishSingleFile>true</PublishSingleFile>
     </PropertyGroup>

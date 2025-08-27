@@ -10,22 +10,29 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     clang zlib1g-dev
 ARG BUILD_CONFIGURATION=Debug
+ARG SONAR_SECRET
 WORKDIR /src
 COPY ["NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj", "NetCup_DynDNS_Client/"]
 RUN dotnet restore "./NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj"
 COPY . .
 WORKDIR "/src/NetCup_DynDNS_Client"
 
-RUN dotnet tool install --global dotnet-sonarscanner
-RUN dotnet sonarscanner begin /o:"fachit360" /k:"FachIT360_NetCup-DynDns-Client" /d:sonar.token="038af00d18a9739dd82e0a410e7bdea875561062" && \
+RUN dotnet tool install --global dotnet-sonarscanner dotnet-coverage && \
+    export PATH="$PATH:~/.dotnet/tools" &&  \
+    dotnet-coverage collect "dotnet test" -f xml -o "coverage.xml" && \
+    dotnet sonarscanner begin \
+    /o:"fachit360" /k:"FachIT360_NetCup-DynDns-Client" \
+    /d:sonar.token="$SONAR_SECRET" \
+    /d:sonar.cs.vscoveragexml.reportsPaths="coverage.xml" && \
     dotnet build "./NetCup_DynDNS_Client.csproj" -c "$BUILD_CONFIGURATION" -o /app/build && \
-    dotnet sonarscanner end /d:sonar.token="038af00d18a9739dd82e0a410e7bdea875561062"    
+    dotnet sonarscanner end /d:sonar.token="$SONAR_SECRET"    
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Debug
 RUN dotnet publish "./NetCup_DynDNS_Client.csproj" -c "$BUILD_CONFIGURATION" -o /app/publish /p:UseAppHost=true
 
 FROM mcr.microsoft.com/dotnet/runtime-deps:9.0 AS final
+USER app
 WORKDIR /app
 
 COPY --from=publish /app/publish .
