@@ -49,5 +49,10 @@ steps:
       projects: '**/*Tests.csproj'
       arguments: '--collect "Code Coverage"'
 
-  - task: SonarQubePostTest@1
-    displayName: 'SonarQube Analyzer'
+  - task: SonarCloudAnalyze@3
+    inputs:
+      jdkversion: 'JAVA_HOME'
+
+  - task: SonarCloudPublish@3
+    inputs:
+      pollingTimeoutSec: '300'
