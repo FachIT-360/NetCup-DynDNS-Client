@@ -11,30 +11,20 @@ resources:
 variables:
   tag: '$(Build.BuildId)'
 
-stages:
-- stage: Test
-  displayName: Test
-- stage: Build
-  displayName: Build image
-  jobs:
-  - job: Build
-    displayName: Build
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-    - task: Docker@2
-      displayName: Build an image
-      inputs:
-        containerRegistry: 'FachIT 360 - Docker Registry'
-        repository: 'network/fit360-netcup-ddns-client'
-        command: 'build'
-        Dockerfile: './NetCup_DynDNS_Client/Dockerfile'
-        buildContext: '.'
-        tags: '$(tag)'
-    - task: SonarCloudPrepare@3
-      inputs:
-        SonarQube: 'SonarQube'
-        organization: 'fachit360'
-        scannerMode: 'dotnet'
-        projectKey: 'FachIT360_NetCup-DynDns-Client'
-        projectName: 'NetCup-DynDns-Client'
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'restore'
+      projects: '*.sln'
+
+  # - task: SonarCloudPrepare@3
+  #   displayName: Sonar Prepare
+  #   inputs:
+  #     SonarQube: 'SonarQube'
+  #     organization: 'fachit360'
+  #     scannerMode: 'dotnet'
+  #     projectKey: 'FachIT360_NetCup-DynDns-Client'
+  #     projectName: 'NetCup-DynDns-Client'
