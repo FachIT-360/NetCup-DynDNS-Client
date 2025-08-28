@@ -26,6 +26,6 @@ stages:
         containerRegistry: 'FachIT 360 - Docker Registry'
         repository: 'network/fit360-netcup-ddns-client'
         command: 'build'
-        Dockerfile: 'Dockerfile'
-        buildContext: './NetCup_DynDNS_Client'
+        Dockerfile: './NetCup_DynDNS_Client/Dockerfile'
+        buildContext: '.'
         tags: '$(tag)'
