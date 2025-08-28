@@ -12,6 +12,8 @@ variables:
   tag: '$(Build.BuildId)'
 
 stages:
+- stage: Test
+  displayName: Test
 - stage: Build
   displayName: Build image
   jobs:
@@ -29,3 +31,10 @@ stages:
         Dockerfile: './NetCup_DynDNS_Client/Dockerfile'
         buildContext: '.'
         tags: '$(tag)'
+    - task: SonarCloudPrepare@3
+      inputs:
+        SonarQube: 'SonarQube'
+        organization: 'fachit360'
+        scannerMode: 'dotnet'
+        projectKey: 'FachIT360_NetCup-DynDns-Client'
+        projectName: 'NetCup-DynDns-Client'
