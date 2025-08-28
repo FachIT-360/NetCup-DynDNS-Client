@@ -43,8 +43,11 @@ steps:
       projects: '*.sln'
 
   - task: DotNetCoreCLI@2
-    displayName: ''
+    displayName: 'Execute Tests'
     inputs:
       command: test
       projects: '**/*Tests.csproj'
       arguments: '--collect "Code Coverage"'
+
+  - task: SonarQubePostTest@1
+    displayName: 'SonarQube Analyzer'
