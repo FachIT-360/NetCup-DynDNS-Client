@@ -11,8 +11,8 @@ RUN apt-get update \
     clang zlib1g-dev libxml2
 ARG BUILD_CONFIGURATION=Debug
 WORKDIR /src
-COPY ["NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj", "NetCup_DynDNS_Client/"]
-COPY ["NetCup_DynDNS_Client.Tests/NetCup_DynDNS_Client.Tests.csproj", "NetCup_DynDNS_Client.Tests/"]
+COPY ["./NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj", "NetCup_DynDNS_Client/"]
+COPY ["./NetCup_DynDNS_Client.Tests/NetCup_DynDNS_Client.Tests.csproj", "NetCup_DynDNS_Client.Tests/"]
 RUN dotnet restore "./NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj"
 RUN dotnet restore "./NetCup_DynDNS_Client.Tests/NetCup_DynDNS_Client.Tests.csproj"
 COPY . .
