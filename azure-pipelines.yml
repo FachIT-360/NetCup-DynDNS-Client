@@ -16,10 +16,12 @@ pool:
 
 steps:
   - task: UseDotNet@2
+    displayName: 'Install .Net SDK 9.0'
     inputs:
       packageType: 'sdk'
       version: '9.0.x'
   - task: DotNetCoreCLI@2
+    displayName: 'Restore projects in Sulution'
     inputs:
       command: 'restore'
       projects: '*.sln'
