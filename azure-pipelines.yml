@@ -20,17 +20,31 @@ steps:
     inputs:
       packageType: 'sdk'
       version: '9.0.x'
+
   - task: DotNetCoreCLI@2
     displayName: 'Restore projects in Sulution'
     inputs:
       command: 'restore'
       projects: '*.sln'
 
-  # - task: SonarCloudPrepare@3
-  #   displayName: Sonar Prepare
-  #   inputs:
-  #     SonarQube: 'SonarQube'
-  #     organization: 'fachit360'
-  #     scannerMode: 'dotnet'
-  #     projectKey: 'FachIT360_NetCup-DynDns-Client'
-  #     projectName: 'NetCup-DynDns-Client'
+  - task: SonarCloudPrepare@3
+    displayName: SonarQube Prepare
+    inputs:
+      SonarQube: 'SonarQube'
+      organization: 'fachit360'
+      scannerMode: 'dotnet'
+      projectKey: 'FachIT360_NetCup-DynDns-Client'
+      projectName: 'NetCup-DynDns-Client'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Build all projects in solution'
+    inputs:
+      command: build
+      projects: '*.sln'
+
+  - task: DotNetCoreCLI@2
+    displayName: ''
+    inputs:
+      command: test
+      projects: '**/*Tests.csproj'
+      arguments: '--collect "Code Coverage"'
