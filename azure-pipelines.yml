@@ -35,6 +35,11 @@ steps:
       scannerMode: 'dotnet'
       projectKey: 'FachIT360_NetCup-DynDns-Client'
       projectName: 'NetCup-DynDns-Client'
+      extraProperties: |
+        # Additional properties that will be passed to the scanner, 
+        # Put one key=value per line, example:
+        # sonar.exclusions=**/*.bin
+        sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
 
   - task: DotNetCoreCLI@2
     displayName: 'Build all projects in solution'
