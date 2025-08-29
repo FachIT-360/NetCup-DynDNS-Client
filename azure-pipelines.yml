@@ -17,7 +17,7 @@ pool:
 steps:
   - pwsh: |
       Write-Host "##[group] Env Test View"
-      Write-Host "##[section]API-KEY: ${env:NETCUP_LOGIN_APIKEY}"
+      Write-Host "##[section]API-KEY: $(NETCUP_LOGIN_APIKEY)"
       Write-Host "##[endgroup]"
 
   # - task: UseDotNet@2
