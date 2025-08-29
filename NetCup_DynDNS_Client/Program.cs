@@ -2,8 +2,6 @@
 // (C) 2025 by FachIT360 - Marcus Reinhart
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Diagnostics.CodeAnalysis;
-
 using FachIT360.Utils.Dns.NetCup.Models.AppSettings;
 using FachIT360.Utils.Dns.NetCup.Services;
 

@@ -52,7 +52,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                     {
                         var apiClient        = scope.ServiceProvider.GetRequiredService<NetCupDynDnsApiClient>();
                         var netCupApiOptions = scope.ServiceProvider.GetRequiredService<IOptionsMonitor<NetCupApi>>();
-                        await apiClient.UpdateDynDns();
+                        await apiClient.StartSyncDnsRecords();
 
                         await Task.Delay(netCupApiOptions.CurrentValue.RequestInterval!.Value, stoppingToken);
                     }
