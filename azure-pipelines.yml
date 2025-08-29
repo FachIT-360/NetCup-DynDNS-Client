@@ -21,11 +21,6 @@ steps:
       packageType: 'sdk'
       version: '9.0.x'
 
-  - task: VisualStudioTestPlatformInstaller@1
-    inputs:
-      packageFeedSelector: 'nugetOrg'
-      versionSelector: 'latestStable'
-      
   - task: DotNetCoreCLI@2
     displayName: 'Restore projects in Sulution'
     inputs:
