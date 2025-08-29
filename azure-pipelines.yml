@@ -40,6 +40,7 @@ steps:
         # Put one key=value per line, example:
         # sonar.exclusions=**/*.bin
         sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
+        sonar.cs.vscoveragexml.reportsPaths=$(Agent.TempDirectory)/**/*.coverage
 
   - task: DotNetCoreCLI@2
     displayName: 'Build all projects in solution'
