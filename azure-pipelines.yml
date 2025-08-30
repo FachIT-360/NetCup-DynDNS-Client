@@ -15,50 +15,56 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-  - task: UseDotNet@2
-    displayName: 'Install .Net SDK 9.0'
-    inputs:
-      packageType: 'sdk'
-      version: '9.0.x'
+  - pwsh: |
+      Write-Host "##[group] Env Test View"
+      Write-Host "##[section]API-KEY: $(NETCUP_LOGIN_APIKEY)"
+      Write-Host "##[section]Test Var: ${env:TEST_VAR}"
+      Write-Host "##[endgroup]"
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Restore projects in Sulution'
-    inputs:
-      command: 'restore'
-      projects: '*.sln'
+  # - task: UseDotNet@2
+  #   displayName: 'Install .Net SDK 9.0'
+  #   inputs:
+  #     packageType: 'sdk'
+  #     version: '9.0.x'
 
-  - task: SonarCloudPrepare@3
-    displayName: SonarQube Prepare
-    inputs:
-      SonarQube: 'SonarQube'
-      organization: 'fachit360'
-      scannerMode: 'dotnet'
-      projectKey: 'FachIT360_NetCup-DynDns-Client'
-      projectName: 'NetCup-DynDns-Client'
-      extraProperties: |
-        # Additional properties that will be passed to the scanner, 
-        # Put one key=value per line, example:
-        # sonar.exclusions=**/*.bin
-        sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
-        sonar.cs.opencover.reportsPaths=$(Agent.TempDirectory)/**/coverage.opencover.xml
+  # - task: DotNetCoreCLI@2
+  #   displayName: 'Restore projects in Sulution'
+  #   inputs:
+  #     command: 'restore'
+  #     projects: '*.sln'
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Build all projects in solution'
-    inputs:
-      command: build
-      projects: '*.sln'
+  # - task: SonarCloudPrepare@3
+  #   displayName: SonarQube Prepare
+  #   inputs:
+  #     SonarQube: 'SonarQube'
+  #     organization: 'fachit360'
+  #     scannerMode: 'dotnet'
+  #     projectKey: 'FachIT360_NetCup-DynDns-Client'
+  #     projectName: 'NetCup-DynDns-Client'
+  #     extraProperties: |
+  #       # Additional properties that will be passed to the scanner, 
+  #       # Put one key=value per line, example:
+  #       # sonar.exclusions=**/*.bin
+  #       sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
+  #       sonar.cs.opencover.reportsPaths=$(Agent.TempDirectory)/**/coverage.opencover.xml
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Execute Tests'
-    inputs:
-      command: 'test'
-      projects: '**/*Tests.csproj'
-      arguments: '--collect "XPlat Code Coverage;Format=opencover"'
+  # - task: DotNetCoreCLI@2
+  #   displayName: 'Build all projects in solution'
+  #   inputs:
+  #     command: build
+  #     projects: '*.sln'
 
-  - task: SonarCloudAnalyze@3
-    inputs:
-      jdkversion: 'JAVA_HOME'
+  # - task: DotNetCoreCLI@2
+  #   displayName: 'Execute Tests'
+  #   inputs:
+  #     command: 'test'
+  #     projects: '**/*Tests.csproj'
+  #     arguments: '--collect "XPlat Code Coverage;Format=opencover"'
 
-  - task: SonarCloudPublish@3
-    inputs:
-      pollingTimeoutSec: '300'
+  # - task: SonarCloudAnalyze@3
+  #   inputs:
+  #     jdkversion: 'JAVA_HOME'
+
+  # - task: SonarCloudPublish@3
+  #   inputs:
+  #     pollingTimeoutSec: '300'
