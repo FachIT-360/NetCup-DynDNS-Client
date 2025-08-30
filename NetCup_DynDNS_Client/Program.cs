@@ -20,20 +20,6 @@ namespace FachIT360.Utils.Dns.NetCup
 
     #region Methods
 
-        public static async Task<int> Main(string[] args)
-        {
-            var host = await Bootstrap(args);
-
-            if (host == null)
-            {
-                return Environment.ExitCode;
-            }
-            
-            await host.RunAsync();
-
-            return Environment.ExitCode;
-        }
-
         public static async Task<IHost?> Bootstrap(string[] args)
         {
             var builder = Host.CreateApplicationBuilder(args);
@@ -48,7 +34,11 @@ namespace FachIT360.Utils.Dns.NetCup
                                      });
 
             builder.Services.Configure<NetCupApi>(builder.Configuration.GetSection("NetCupApi"));
-            builder.Services.AddHttpClient<NetCupDynDnsApiClient>();
+
+            builder.Services.AddHttpClient<NetCupDynDnsApiClient>((sp, client) =>
+                                                                      client.BaseAddress = sp.GetRequiredService<IOptionsMonitor<NetCupApi>>()
+                                                                                             .CurrentValue.EndpointUrl);
+
             builder.Services.AddHostedService<WorkerService>();
 
             var host = builder.Build();
@@ -66,25 +56,27 @@ namespace FachIT360.Utils.Dns.NetCup
                 // Check ApiKey
                 if (string.IsNullOrWhiteSpace(host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiKey))
                 {
-                    host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiKey = builder.Configuration["NETCUP_LOGIN_APIKEY"];
+                    host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiKey =
+                        builder.Configuration["NETCUP_LOGIN_APIKEY"];
 
                     if (string.IsNullOrWhiteSpace(host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiKey))
                     {
                         Environment.ExitCode = 1;
                     }
                 }
-                
+
                 // Check ApiPassword
                 if (string.IsNullOrWhiteSpace(host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiPassword))
                 {
-                    host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiPassword = builder.Configuration["NETCUP_LOGIN_APIPASSWORD"];
+                    host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiPassword =
+                        builder.Configuration["NETCUP_LOGIN_APIPASSWORD"];
 
                     if (string.IsNullOrWhiteSpace(host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiPassword))
                     {
-                        Environment.ExitCode = 1;   
+                        Environment.ExitCode = 1;
                     }
                 }
-                
+
                 // Check CustomerNumber
                 if (!host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.CustomerNumber.HasValue)
                 {
@@ -115,8 +107,22 @@ namespace FachIT360.Utils.Dns.NetCup
 
                 return null;
             }
-            
+
             return host;
+        }
+
+        public static async Task<int> Main(string[] args)
+        {
+            var host = await Bootstrap(args);
+
+            if (host == null)
+            {
+                return Environment.ExitCode;
+            }
+
+            await host.RunAsync();
+
+            return Environment.ExitCode;
         }
 
     #endregion
