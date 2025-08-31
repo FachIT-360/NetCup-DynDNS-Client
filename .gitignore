@@ -365,3 +365,5 @@ FodyWeavers.xsd
 
 # Ignore Apple Desktop Service files
 **/.DS_Store
+
+**/.sonarqube/
