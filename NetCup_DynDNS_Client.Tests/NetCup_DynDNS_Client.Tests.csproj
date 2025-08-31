@@ -20,9 +20,5 @@
   <ItemGroup>
     <ProjectReference Include="..\NetCup_DynDNS_Client\NetCup_DynDNS_Client.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
   
 </Project>

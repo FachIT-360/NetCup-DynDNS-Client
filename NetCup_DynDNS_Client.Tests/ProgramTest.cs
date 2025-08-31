@@ -49,12 +49,15 @@ namespace NetCup_DynDNS_Client.Tests
 
             _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiKey =
                 _hostBuilder.Configuration["NETCUP_LOGIN_APIKEY"];
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiKey));
 
             _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiPassword =
                 _hostBuilder.Configuration["NETCUP_LOGIN_APIPASSWORD"];
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.ApiPassword));
 
             _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.CustomerNumber =
                 Convert.ToUInt32(_hostBuilder.Configuration["NETCUP_LOGIN_CUSTOMERNUMBER"]);
+            Assert.IsTrue(_host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue.Login.CustomerNumber.HasValue);
         }
 
         [TestMethod]
