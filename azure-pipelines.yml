@@ -51,13 +51,10 @@ steps:
       projects: '**/*Tests.csproj'
       arguments: '--collect "XPlat Code Coverage;Format=opencover" -e NETCUP_LOGIN_APIKEY="$(NETCUP_LOGIN_APIKEY)" -e NETCUP_LOGIN_APIPASSWORD="$(NETCUP_LOGIN_APIPASSWORD)" -e NETCUP_LOGIN_CUSTOMERNUMBER="$(NETCUP_LOGIN_CUSTOMERNUMBER)"'
 
-  - task: PublishTestResults@2
+  - task: PublishCodeCoverageResults@2
     inputs:
-      testResultsFormat: 'VSTest'
-      testResultsFiles: '$(Agent.TempDirectory)/**/coverage.opencover.xml'
-      failTaskOnFailedTests: true
-      failTaskOnFailureToPublishResults: true
-      failTaskOnMissingResultsFile: true
+      summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.opencover.xml'
+      failIfCoverageEmpty: true
 
   - task: SonarCloudAnalyze@3
     inputs:
