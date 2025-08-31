@@ -54,7 +54,7 @@ steps:
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: 'VSTest'
-      testResultsFiles: '**/coverage.opencover.xml'
+      testResultsFiles: '$(Agent.TempDirectory)/**/coverage.opencover.xml'
       failTaskOnFailedTests: true
       failTaskOnFailureToPublishResults: true
       failTaskOnMissingResultsFile: true
