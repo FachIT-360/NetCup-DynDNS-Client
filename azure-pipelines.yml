@@ -49,7 +49,11 @@ steps:
     inputs:
       command: 'test'
       projects: '**/*Tests.csproj'
-      arguments: '--collect "XPlat Code Coverage;Format=opencover"'
+      arguments: |
+        --collect "XPlat Code Coverage;Format=opencover"
+        -e NETCUP_LOGIN_APIKEY="$(NETCUP_LOGIN_APIKEY)"
+        -e NETCUP_LOGIN_APIPASSWORD="$(NETCUP_LOGIN_APIPASSWORD)"
+        -e NETCUP_LOGIN_CUSTOMERNUMBER="$(NETCUP_LOGIN_CUSTOMERNUMBER)"
   
   - task: SonarCloudAnalyze@3
     inputs:
