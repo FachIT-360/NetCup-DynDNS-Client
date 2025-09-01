@@ -14,11 +14,6 @@ namespace FachIT360.Utils.Dns.NetCup
 {
     public class Program
     {
-    #region Constructors and Destructors
-
-        protected Program() { }
-
-    #endregion
 
     #region Methods
 
