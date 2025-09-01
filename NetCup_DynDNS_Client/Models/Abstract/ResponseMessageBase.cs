@@ -29,7 +29,7 @@ namespace FachIT360.Utils.Dns.NetCup.Models.Abstract
         public uint StatusCode { get; set; }
 
         [JsonProperty(PropertyName = "serverrequestid")]
-        private string ServerRequestId { get; set; } = null!;
+        public string ServerRequestId { get; set; } = null!;
 
     #endregion
     }

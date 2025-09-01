@@ -2,31 +2,28 @@
 // (C) 2025 by FachIT360 - Marcus Reinhart
 // --------------------------------------------------------------------------------------------------------------------
 
-using FachIT360.Utils.Dns.NetCup.Models.AppSettings;
-
-using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FachIT360.Utils.Dns.NetCup.Services
 {
+    [ExcludeFromCodeCoverage]
     public class WorkerService : BackgroundService
     {
     #region Constants - Static fields - Fields
 
         private readonly IHostApplicationLifetime _hostLifetime;
         private readonly ILogger<WorkerService>   _log;
-        private readonly IServiceProvider         _serviceProvider;
+        private readonly WorkerTask               _workerTask;
 
     #endregion
 
     #region Constructors and Destructors
 
-        public WorkerService(ILogger<WorkerService> log,
-                             IHostApplicationLifetime hostLifetime,
-                             IServiceProvider serviceProvider)
+        public WorkerService(ILogger<WorkerService> log, IHostApplicationLifetime hostLifetime, WorkerTask workerTask)
         {
-            _log             = log;
-            _hostLifetime    = hostLifetime;
-            _serviceProvider = serviceProvider;
+            _log          = log;
+            _hostLifetime = hostLifetime;
+            _workerTask   = workerTask;
         }
 
     #endregion
@@ -47,15 +44,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                         continue;
                     }
 
-                    // Get the api client
-                    await using (var scope = _serviceProvider.CreateAsyncScope())
-                    {
-                        var netCupApiClient        = scope.ServiceProvider.GetRequiredService<NetCupDynDnsApiClient>();
-                        var netCupApiOptions = scope.ServiceProvider.GetRequiredService<IOptionsMonitor<NetCupApi>>();
-                        await netCupApiClient.StartSyncDnsRecords();
-
-                        await Task.Delay(netCupApiOptions.CurrentValue.RequestInterval!.Value, stoppingToken);
-                    }
+                    await _workerTask.StartSyncDnsRecordsAsync(stoppingToken);
                 }
                 catch (OperationCanceledException)
                 {

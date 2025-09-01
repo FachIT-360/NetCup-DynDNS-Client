@@ -2,6 +2,8 @@
 // (C) 2025 by FachIT360 - Marcus Reinhart
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Diagnostics.CodeAnalysis;
+
 using FachIT360.Utils.Dns.NetCup.Models.AppSettings;
 using FachIT360.Utils.Dns.NetCup.Services;
 
@@ -35,10 +37,11 @@ namespace FachIT360.Utils.Dns.NetCup
 
             builder.Services.Configure<NetCupApi>(builder.Configuration.GetSection("NetCupApi"));
 
-            builder.Services.AddHttpClient<NetCupDynDnsApiClient>((sp, client) =>
+            builder.Services.AddHttpClient<NetCupApiClient>((sp, client) =>
                                                                       client.BaseAddress = sp.GetRequiredService<IOptionsMonitor<NetCupApi>>()
                                                                                              .CurrentValue.EndpointUrl);
 
+            builder.Services.AddSingleton<WorkerTask>();
             builder.Services.AddHostedService<WorkerService>();
 
             var host = builder.Build();
@@ -111,6 +114,7 @@ namespace FachIT360.Utils.Dns.NetCup
             return host;
         }
 
+        [ExcludeFromCodeCoverage]
         public static async Task<int> Main(string[] args)
         {
             var host = await Bootstrap(args);
