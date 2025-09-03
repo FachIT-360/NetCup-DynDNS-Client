@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 using FachIT360.Utils.Dns.NetCup;
@@ -48,6 +48,7 @@ namespace NetCup_DynDNS_Client.Tests
             _hostBuilder.Services.AddHttpClient<NetCupApiClient>((sp, client) =>
                                                                      client.BaseAddress = sp.GetRequiredService<IOptionsMonitor<NetCupApi>>()
                                                                                             .CurrentValue.EndpointUrl);
+
             _hostBuilder.Services.AddSingleton<WorkerTask>();
 
             _host = _hostBuilder.Build();
@@ -83,30 +84,30 @@ namespace NetCup_DynDNS_Client.Tests
         {
             var workerTask   = _host.Services.GetRequiredService<WorkerTask>();
             var netCupConfig = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
-            
+
             // Enforce a fake IP change
             var fakePublicIp = new List<IPAddress>([IPAddress.Parse("192.168.127.12")]);
-            
+
             // Comes usually from NetCupApiClient.GetDnsRecordsForDomainAsync() Method
-            var domainDnsRecords = GetDnsRecordsMockData();
-            
+            var domainDnsRecords = GetDnsRecordsMockData("202.61.232.217", "202.61.232.217");
+
             var ipChanged =
                 workerTask.CurrentPublicIpChanged(fakePublicIp, domainDnsRecords, netCupConfig.Domains.First().Value, out var recordsToUpdate);
-            
+
             Assert.IsTrue(ipChanged);
             Assert.AreSame(fakePublicIp[0].ToString(), recordsToUpdate[0].Destination);
             Assert.AreSame(fakePublicIp[0].ToString(), recordsToUpdate[1].Destination);
-            
+
             ipChanged =
                 workerTask.CurrentPublicIpChanged(fakePublicIp, null, netCupConfig.Domains.First().Value, out _);
-            
+
             Assert.IsFalse(ipChanged);
         }
-        
+
         [TestMethod]
         public async Task GetCurrentPublicIpAsync()
         {
-            var workerTask = _host.Services.GetRequiredService<WorkerTask>();
+            var workerTask   = _host.Services.GetRequiredService<WorkerTask>();
             var netCupConfig = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
 
             // TODO: Test that respect IPv6 not implemented yet
@@ -173,6 +174,7 @@ namespace NetCup_DynDNS_Client.Tests
         public async Task UpdateDnsRecordsAsyncTest()
         {
             var httpClient   = _host.Services.GetRequiredService<NetCupApiClient>();
+            var workerTask   = _host.Services.GetRequiredService<WorkerTask>();
             var netCupConfig = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
 
             // Login
@@ -180,16 +182,28 @@ namespace NetCup_DynDNS_Client.Tests
             Assert.IsNotNull(apiSessionId);
 
             var result = await httpClient.UpdateDnsRecordsAsync(apiSessionId, netCupConfig.Domains.First().Key,
-                                                                GetDnsRecordsMockData().ResponseData?.DnsRecordArray.ToList() ?? []);
+                                                                GetDnsRecordsMockData("202.61.232.217", "202.61.232.217")
+                                                                    .ResponseData?.DnsRecordArray.ToList() ?? []);
 
             Assert.IsNotNull(result);
+            var currentPublicIp = await workerTask.GetCurrentPublicIpAsync(netCupConfig.MyIp4ApiUrl, netCupConfig.MyIp6ApiUrl);
+
+            var result2 = await httpClient.UpdateDnsRecordsAsync(apiSessionId, netCupConfig.Domains.First().Key,
+                                                                 GetDnsRecordsMockData(
+                                                                         currentPublicIp.First(ip => ip.AddressFamily == AddressFamily.InterNetwork)
+                                                                                        .ToString(),
+                                                                         currentPublicIp.First(ip => ip.AddressFamily == AddressFamily.InterNetwork)
+                                                                                        .ToString())
+                                                                     .ResponseData?.DnsRecordArray.ToList() ?? []);
+
+            Assert.IsNotNull(result2);
             
             // Logout
             var isLoggedOut = await httpClient.LogoutAsync(apiSessionId);
             Assert.IsTrue(isLoggedOut);
         }
 
-        private static ResponseDataInfoDnsRecords GetDnsRecordsMockData()
+        private static ResponseDataInfoDnsRecords GetDnsRecordsMockData(string destIp1, string destIp2)
         {
             return new ResponseDataInfoDnsRecords
                    {
@@ -206,7 +220,7 @@ namespace NetCup_DynDNS_Client.Tests
                                               new()
                                               {
                                                   DeleteRecord = false,
-                                                  Destination  = "202.61.232.217",
+                                                  Destination  = destIp1,
                                                   Hostname     = "*",
                                                   Id           = "77098486",
                                                   Priority     = "0",
@@ -216,7 +230,7 @@ namespace NetCup_DynDNS_Client.Tests
                                               new()
                                               {
                                                   DeleteRecord = false,
-                                                  Destination  = "202.61.232.217",
+                                                  Destination  = destIp2,
                                                   Hostname     = "@",
                                                   Id           = "77098487",
                                                   Priority     = "0",

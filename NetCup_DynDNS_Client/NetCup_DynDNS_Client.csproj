@@ -5,7 +5,6 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <InvariantGlobalization>true</InvariantGlobalization>
-        <UserSecretsId>dotnet-DynDNS_4_NetCup_DotNet-e3309b49-bd15-4a7d-b3ae-9bbf70c6803c</UserSecretsId>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <AssemblyName>netcup-dyndns</AssemblyName>
         <RootNamespace>FachIT360.Utils.Dns.NetCup</RootNamespace>
