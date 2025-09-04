@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 using FachIT360.Utils.Dns.NetCup;
@@ -70,6 +70,136 @@ namespace NetCup_DynDNS_Client.Tests
         }
 
         [TestMethod]
+        public async Task ApiGetDnsRecordsForDomainAsyncTest()
+        {
+            // Get NetCupApiClient
+            var config          = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
+            var netCupApiClient = GetNetCupApiClient(config.EndpointUrl!.ToString());
+            Assert.IsNotNull(netCupApiClient);
+            Assert.IsNotNull(netCupApiClient.HttpClient);
+            Assert.IsNotNull(netCupApiClient.HttpClient.BaseAddress);
+            Assert.AreEqual(config.EndpointUrl, netCupApiClient.HttpClient.BaseAddress);
+
+            // Login to NetCup API and get API Session ID
+            var apiSessionId = await netCupApiClient.LoginAsync(config.Login);
+            Assert.IsNotNull(apiSessionId);
+
+            // Get DNS records for domain
+            var result = await netCupApiClient.GetDnsRecordsForDomainAsync(apiSessionId, config.Domains.First().Key);
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.ResponseData);
+            Assert.IsNotEmpty(result.ResponseData.DnsRecordArray);
+
+            // Logout from NetCup API
+            var isLoggedOut = await netCupApiClient.LogoutAsync(apiSessionId);
+            Assert.IsTrue(isLoggedOut);
+        }
+
+        [TestMethod]
+        public async Task ApiLoginAsyncTest()
+        {
+            // Get NetCupApiClient
+            var config          = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
+            var netCupApiClient = GetNetCupApiClient(config.EndpointUrl!.ToString());
+            Assert.IsNotNull(netCupApiClient);
+            Assert.IsNotNull(netCupApiClient.HttpClient);
+            Assert.IsNotNull(netCupApiClient.HttpClient.BaseAddress);
+            Assert.AreEqual(config.EndpointUrl, netCupApiClient.HttpClient.BaseAddress);
+
+            // Login to NetCup API with wrong credentials
+            var apiSessionId = await netCupApiClient.LoginAsync("wrongApiKey", "wrongPassword", 0);
+            Assert.IsNull(apiSessionId);
+
+            // Get NetCupApiClient with a wrong API URL
+            var wrongNetCupApiClient = GetNetCupApiClient("https://WrongApiUrl.com");
+            Assert.IsNotNull(wrongNetCupApiClient);
+            Assert.IsNotNull(wrongNetCupApiClient.HttpClient);
+            Assert.IsNotNull(wrongNetCupApiClient.HttpClient.BaseAddress);
+            Assert.AreEqual(new Uri("https://WrongApiUrl.com"), wrongNetCupApiClient.HttpClient.BaseAddress);
+
+            // Force connection exception with a wrong API URL
+            apiSessionId = await wrongNetCupApiClient.LoginAsync("wrongApiKey", "wrongPassword", 0);
+            Assert.IsNull(apiSessionId);
+        }
+
+        [TestMethod]
+        public async Task ApiLogoutAsyncTest()
+        {
+            // Get NetCupApiClient
+            var config          = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
+            var netCupApiClient = GetNetCupApiClient(config.EndpointUrl!.ToString());
+            Assert.IsNotNull(netCupApiClient);
+            Assert.IsNotNull(netCupApiClient.HttpClient);
+            Assert.IsNotNull(netCupApiClient.HttpClient.BaseAddress);
+            Assert.AreEqual(config.EndpointUrl, netCupApiClient.HttpClient.BaseAddress);
+
+            // Login to NetCup API and get API Session ID
+            var apiSessionId = await netCupApiClient.LoginAsync(
+                                   config.Login.ApiKey!,
+                                   config.Login.ApiPassword!,
+                                   config.Login.CustomerNumber!.Value);
+
+            Assert.IsNotNull(apiSessionId);
+
+            // Test successful LogOut
+            var isLoggedOut = await netCupApiClient.LogoutAsync(apiSessionId);
+            Assert.IsTrue(isLoggedOut);
+            
+            // Get NetCupApiClient with a wrong API URL
+            var wrongNetCupApiClient = GetNetCupApiClient("https://WrongApiUrl.com");
+            Assert.IsNotNull(wrongNetCupApiClient);
+            Assert.IsNotNull(wrongNetCupApiClient.HttpClient);
+            Assert.IsNotNull(wrongNetCupApiClient.HttpClient.BaseAddress);
+            Assert.AreEqual(new Uri("https://WrongApiUrl.com"), wrongNetCupApiClient.HttpClient.BaseAddress);
+            
+            // Force connection exception with a wrong API URL
+            isLoggedOut = await wrongNetCupApiClient.LogoutAsync(apiSessionId);
+            Assert.IsFalse(isLoggedOut);
+        }
+
+        [TestMethod]
+        public async Task ApiUpdateDnsRecordsAsyncTest()
+        {
+            // Get NetCupApiClient
+            var config          = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
+            var netCupApiClient = GetNetCupApiClient(config.EndpointUrl!.ToString());
+            Assert.IsNotNull(netCupApiClient);
+            Assert.IsNotNull(netCupApiClient.HttpClient);
+            Assert.IsNotNull(netCupApiClient.HttpClient.BaseAddress);
+            Assert.AreEqual(config.EndpointUrl, netCupApiClient.HttpClient.BaseAddress);
+
+            // Login to NetCup API and get API Session ID
+            var apiSessionId = await netCupApiClient.LoginAsync(config.Login);
+            Assert.IsNotNull(apiSessionId);
+
+            // Get current DNS records for restore
+            var currentDnsRecordsForRestore = await netCupApiClient.GetDnsRecordsForDomainAsync(apiSessionId, config.Domains.First().Key);
+            Assert.IsNotNull(currentDnsRecordsForRestore);
+            Assert.IsNotNull(currentDnsRecordsForRestore.ResponseData);
+            Assert.IsNotEmpty(currentDnsRecordsForRestore.ResponseData.DnsRecordArray);
+
+            var result = await netCupApiClient.UpdateDnsRecordsAsync(apiSessionId, config.Domains.First().Key,
+                                                                     GetDnsRecordsMockData("202.202.202.202", "202.202.202.202")
+                                                                         .ResponseData?.DnsRecordArray.ToList() ?? []);
+
+            Assert.IsNotNull(result);
+
+            await Task.Delay(1000, CancellationToken.None);
+
+            // Restore DNS records
+            var result2 = await netCupApiClient.UpdateDnsRecordsAsync(apiSessionId, config.Domains.First().Key,
+                                                                      currentDnsRecordsForRestore.ResponseData?.DnsRecordArray
+                                                                                                 .Where(item => item.Hostname is "*" or "@")
+                                                                                                 .ToList() ?? []);
+
+            Assert.IsNotNull(result2);
+
+            // Logout
+            var isLoggedOut = await netCupApiClient.LogoutAsync(apiSessionId);
+            Assert.IsTrue(isLoggedOut);
+        }
+
+        [TestMethod]
         public async Task BootstrapTest()
         {
             var host = await Program.Bootstrap(Array.Empty<string>());
@@ -114,93 +244,6 @@ namespace NetCup_DynDNS_Client.Tests
             var result = await workerTask.GetCurrentPublicIpAsync(netCupConfig.MyIp4ApiUrl, netCupConfig.MyIp6ApiUrl);
             Assert.IsNotNull(result);
             Assert.IsNotEmpty(result);
-        }
-
-        [TestMethod]
-        public async Task GetDnsRecordsForDomainAsyncTest()
-        {
-            var httpClient   = _host.Services.GetRequiredService<NetCupApiClient>();
-            var netCupConfig = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
-
-            var apiSessionId = await httpClient.LoginAsync(netCupConfig.Login);
-
-            Assert.IsNotNull(apiSessionId);
-
-            var result = await httpClient.GetDnsRecordsForDomainAsync(apiSessionId, netCupConfig.Domains.First().Key);
-
-            Assert.IsNotNull(result);
-            Assert.IsNotNull(result.ResponseData);
-            Assert.IsNotEmpty(result.ResponseData.DnsRecordArray);
-
-            var isLoggedOut = await httpClient.LogoutAsync(apiSessionId);
-            Assert.IsTrue(isLoggedOut);
-        }
-
-        [TestMethod]
-        public async Task LoginAsyncTest()
-        {
-            var apiClient = _host.Services.GetRequiredService<NetCupApiClient>();
-
-            var apiSessionId = await apiClient.LoginAsync("wrongApiKey", "wrongPassword", 0);
-            Assert.IsNull(apiSessionId);
-
-            // Force connection exception
-            var wrongNetCupApiClient = GetNetCupApiClient("https://WrongApiUrl.com");
-
-            apiSessionId = await wrongNetCupApiClient.LoginAsync("wrongApiKey", "wrongPassword", 0);
-            Assert.IsNull(apiSessionId);
-        }
-
-        [TestMethod]
-        public async Task LogoutAsyncTest()
-        {
-            var httpClient   = _host.Services.GetRequiredService<NetCupApiClient>();
-            var netCupConfig = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
-
-            // Login
-            var apiSessionId = await httpClient.LoginAsync(
-                                   netCupConfig.Login.ApiKey!,
-                                   netCupConfig.Login.ApiPassword!,
-                                   netCupConfig.Login.CustomerNumber!.Value);
-
-            Assert.IsNotNull(apiSessionId);
-
-            // Test successful LogOut
-            var isLoggedOut = await httpClient.LogoutAsync(apiSessionId);
-            Assert.IsTrue(isLoggedOut);
-        }
-
-        [TestMethod]
-        public async Task UpdateDnsRecordsAsyncTest()
-        {
-            var httpClient   = _host.Services.GetRequiredService<NetCupApiClient>();
-            var workerTask   = _host.Services.GetRequiredService<WorkerTask>();
-            var netCupConfig = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
-
-            // Login
-            var apiSessionId = await httpClient.LoginAsync(netCupConfig.Login);
-            Assert.IsNotNull(apiSessionId);
-
-            var result = await httpClient.UpdateDnsRecordsAsync(apiSessionId, netCupConfig.Domains.First().Key,
-                                                                GetDnsRecordsMockData("202.61.232.217", "202.61.232.217")
-                                                                    .ResponseData?.DnsRecordArray.ToList() ?? []);
-
-            Assert.IsNotNull(result);
-            var currentPublicIp = await workerTask.GetCurrentPublicIpAsync(netCupConfig.MyIp4ApiUrl, netCupConfig.MyIp6ApiUrl);
-
-            var result2 = await httpClient.UpdateDnsRecordsAsync(apiSessionId, netCupConfig.Domains.First().Key,
-                                                                 GetDnsRecordsMockData(
-                                                                         currentPublicIp.First(ip => ip.AddressFamily == AddressFamily.InterNetwork)
-                                                                                        .ToString(),
-                                                                         currentPublicIp.First(ip => ip.AddressFamily == AddressFamily.InterNetwork)
-                                                                                        .ToString())
-                                                                     .ResponseData?.DnsRecordArray.ToList() ?? []);
-
-            Assert.IsNotNull(result2);
-            
-            // Logout
-            var isLoggedOut = await httpClient.LogoutAsync(apiSessionId);
-            Assert.IsTrue(isLoggedOut);
         }
 
         private static ResponseDataInfoDnsRecords GetDnsRecordsMockData(string destIp1, string destIp2)
