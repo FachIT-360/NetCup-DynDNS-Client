@@ -11,6 +11,11 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
+  - task: Bash@3
+    displayName: 'Test ipify.org'
+    inputs:
+      script: curl 'https://api.ipify.org'
+
   - task: UseDotNet@2
     displayName: 'Install .Net SDK 9.0'
     inputs:
