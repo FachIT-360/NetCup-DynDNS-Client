@@ -14,7 +14,13 @@ steps:
   - task: Bash@3
     displayName: 'Test ipify.org'
     inputs:
+      targetType: 'inline'
       script: 'curl -k https://api.ipify.org'
+
+  - task: PowerShell@2
+    inputs:
+      targetType: 'inline'
+      script: 'Invoke-WebRequest -URI htps://api.ipify.org'
 
   - task: UseDotNet@2
     displayName: 'Install .Net SDK 9.0'
