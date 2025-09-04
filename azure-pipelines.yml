@@ -11,17 +11,6 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-  - task: Bash@3
-    displayName: 'Test ipify.org'
-    inputs:
-      targetType: 'inline'
-      script: 'curl -k https://api.ipify.org'
-
-  - task: PowerShell@2
-    inputs:
-      targetType: 'inline'
-      script: 'Invoke-WebRequest -URI https://api.ipify.org'
-
   - task: UseDotNet@2
     displayName: 'Install .Net SDK 9.0'
     inputs:
@@ -60,7 +49,7 @@ steps:
     inputs:
       command: 'test'
       projects: '**/*Tests.csproj'
-      arguments: '--collect "XPlat Code Coverage;Format=opencover" -e NETCUP_LOGIN_APIKEY="$(NETCUP_LOGIN_APIKEY)" -e NETCUP_LOGIN_APIPASSWORD="$(NETCUP_LOGIN_APIPASSWORD)" -e NETCUP_LOGIN_CUSTOMERNUMBER="$(NETCUP_LOGIN_CUSTOMERNUMBER)"'
+      arguments: '--verbosity detailed --collect "XPlat Code Coverage;Format=opencover" -e NETCUP_LOGIN_APIKEY="$(NETCUP_LOGIN_APIKEY)" -e NETCUP_LOGIN_APIPASSWORD="$(NETCUP_LOGIN_APIPASSWORD)" -e NETCUP_LOGIN_CUSTOMERNUMBER="$(NETCUP_LOGIN_CUSTOMERNUMBER)"'
 
   - task: PublishCodeCoverageResults@2
     inputs:
