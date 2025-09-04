@@ -20,7 +20,7 @@ steps:
   - task: PowerShell@2
     inputs:
       targetType: 'inline'
-      script: 'Invoke-WebRequest -URI htps://api.ipify.org'
+      script: 'Invoke-WebRequest -URI https://api.ipify.org'
 
   - task: UseDotNet@2
     displayName: 'Install .Net SDK 9.0'
