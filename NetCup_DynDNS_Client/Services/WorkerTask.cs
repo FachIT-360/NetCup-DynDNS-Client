@@ -78,7 +78,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                 var publicAddresses = new List<IPAddress>();
                 
                 var httpClientIpV4 = new HttpClient();
-                httpClientIpV4.BaseAddress = new(ipv4ApiAddress);
+                httpClientIpV4.BaseAddress = new(ipv4ApiAddress, UriKind.Absolute);
                     
                 if (IPAddress.TryParse(await httpClientIpV4.GetStringAsync((string?)null), out var currentIpAddressV4) &&
                     currentIpAddressV4.AddressFamily == AddressFamily.InterNetwork)
@@ -88,7 +88,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                 }
 
                 var httpClientIpV6 = new HttpClient();
-                httpClientIpV6.BaseAddress = new(ipv6ApiAddress);
+                httpClientIpV6.BaseAddress = new(ipv6ApiAddress, UriKind.Absolute);
                 if (IPAddress.TryParse(await httpClientIpV6.GetStringAsync((string?)null), out var currentIpAddressV6) &&
                     currentIpAddressV6.AddressFamily == AddressFamily.InterNetworkV6)
                 {
