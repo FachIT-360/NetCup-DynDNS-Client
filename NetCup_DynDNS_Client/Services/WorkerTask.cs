@@ -71,6 +71,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
         ///     Get current public ip addresses.
         /// </summary>
         /// <returns>Returns all public IP addresses in IPv4 and / or IPv6 if available.</returns>
+        [ExcludeFromCodeCoverage]
         public async Task<List<IPAddress>> GetCurrentPublicIpAsync(string ipv4ApiAddress, string ipv6ApiAddress)
         {
             try
