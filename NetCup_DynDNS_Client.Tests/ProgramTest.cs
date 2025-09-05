@@ -240,11 +240,18 @@ namespace NetCup_DynDNS_Client.Tests
         [TestMethod]
         public async Task GetCurrentPublicIpAsync()
         {
+            // Get NetCupApiClient
+            var config          = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
+            var netCupApiClient = GetNetCupApiClient(config.EndpointUrl!.ToString());
+            Assert.IsNotNull(netCupApiClient);
+            Assert.IsNotNull(netCupApiClient.HttpClient);
+            Assert.IsNotNull(netCupApiClient.HttpClient.BaseAddress);
+            Assert.AreEqual(config.EndpointUrl, netCupApiClient.HttpClient.BaseAddress);
+            
             var workerTask   = _host.Services.GetRequiredService<WorkerTask>();
-            var netCupConfig = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
 
             // TODO: Test that respect IPv6 not implemented yet
-            var result = await workerTask.GetCurrentPublicIpAsync(netCupConfig.MyIp4ApiUrl, netCupConfig.MyIp6ApiUrl);
+            var result = await netCupApiClient.GetCurrentPublicIpAsync(config.MyIp4ApiUrl, config.MyIp6ApiUrl);
             Assert.IsNotNull(result);
             Assert.IsNotEmpty(result);
         }
