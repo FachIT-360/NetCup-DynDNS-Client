@@ -16,77 +16,8 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 {
     public class WorkerTask(IServiceProvider serviceProvider, ILogger<WorkerTask> log)
     {
-        [ExcludeFromCodeCoverage]
-        public async Task StartSyncDnsRecordsAsync(CancellationToken stoppingToken)
-        {
-            await using (var scope = serviceProvider.CreateAsyncScope())
-            {
-                var netCupApiClient  = scope.ServiceProvider.GetRequiredService<NetCupApiClient>();
-                var netCupApiOptions = scope.ServiceProvider.GetRequiredService<IOptionsMonitor<NetCupApi>>();
-                        
-                var apiSessionId = await netCupApiClient.LoginAsync(netCupApiOptions.CurrentValue.Login);
+    #region Methods
 
-                var currentPublicIpAddresses =
-                    await netCupApiClient.GetCurrentPublicIpAsync(netCupApiOptions.CurrentValue.MyIp4ApiUrl,
-                                                                  netCupApiOptions.CurrentValue.MyIp6ApiUrl);
-
-                if (apiSessionId == null)
-                {
-                    log.LogError("ApiSessionId is null");
-                
-                    return;
-                }
-
-                foreach (var (domainName, recordNamesToUpdate) in netCupApiOptions.CurrentValue.Domains)
-                {
-                    // Get DNS records for domain
-                    var currentDomainDnsRecords = await netCupApiClient.GetDnsRecordsForDomainAsync(apiSessionId, domainName);
-
-                    if (CurrentPublicIpChanged(currentPublicIpAddresses, currentDomainDnsRecords, recordNamesToUpdate, out var recordsToUpdate))
-                    {
-                        await netCupApiClient.UpdateDnsRecordsAsync(apiSessionId, domainName, recordsToUpdate);
-                    }
-                }
-                await netCupApiClient.LogoutAsync(apiSessionId);
-
-                await Task.Delay(netCupApiOptions.CurrentValue.RequestInterval!.Value, stoppingToken);
-            }
-        }
-
-        /// <summary>
-        ///     Get current public ip addresses.
-        /// </summary>
-        /// <returns>Returns all public IP addresses in IPv4 and / or IPv6 if available.</returns>
-        public async Task<List<IPAddress>> GetCurrentPublicIpAsync(string ipv4ApiAddress, string ipv6ApiAddress)
-        {
-            try
-            {
-                var httpClient = new HttpClient();
-                var publicAddresses = new List<IPAddress>();
-
-                if (IPAddress.TryParse(await httpClient.GetStringAsync(ipv4ApiAddress), out var currentIpAddressV4))
-                {
-                    log.LogDebug("The current public ip v4 address is: {CurrentIpAddressV4}", currentIpAddressV4);
-                    publicAddresses.Add(currentIpAddressV4);
-                }
-
-                if (IPAddress.TryParse(await httpClient.GetStringAsync(ipv6ApiAddress), out var currentIpAddressV6) &&
-                    currentIpAddressV6.AddressFamily == AddressFamily.InterNetworkV6)
-                {
-                    log.LogDebug("The current public ip v6 address is: {CurrentIpAddressV6}", currentIpAddressV6);
-                    publicAddresses.Add(currentIpAddressV6);
-                }
-
-                return publicAddresses;
-            }
-            catch (Exception ex)
-            {
-                log.LogError(ex, "Error while getting current public ip. Exception Message: {ExMessage}", ex.Message);
-
-                return [];
-            }
-        }
-        
         public bool CurrentPublicIpChanged(List<IPAddress> currentPublicIps,
                                            ResponseDataInfoDnsRecords? infoDnsRecords,
                                            IEnumerable<string> recordNamesToUpdate,
@@ -118,7 +49,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                     if (currentPublicIp.Equals(dnsRecordIp))
                     {
                         log.LogDebug("The ip of dns record \"{DnsRecordHostname}\" with type \"{DnsRecordType}\" has not changed.",
-                                      dnsRecord.Hostname, dnsRecord.Type);
+                                     dnsRecord.Hostname, dnsRecord.Type);
 
                         continue;
                     }
@@ -135,5 +66,84 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
             return hasChanged;
         }
+
+        /// <summary>
+        ///     Get current public ip addresses.
+        /// </summary>
+        /// <returns>Returns all public IP addresses in IPv4 and / or IPv6 if available.</returns>
+        public async Task<List<IPAddress>> GetCurrentPublicIpAsync(string ipv4ApiAddress, string ipv6ApiAddress)
+        {
+            try
+            {
+                var publicAddresses = new List<IPAddress>();
+                
+                var httpClientIpV4 = new HttpClient();
+                httpClientIpV4.BaseAddress = new(ipv4ApiAddress);
+                    
+                if (IPAddress.TryParse(await httpClientIpV4.GetStringAsync((string?)null), out var currentIpAddressV4) &&
+                    currentIpAddressV4.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    log.LogDebug("The current public ip v4 address is: {CurrentIpAddressV4}", currentIpAddressV4);
+                    publicAddresses.Add(currentIpAddressV4);
+                }
+
+                var httpClientIpV6 = new HttpClient();
+                httpClientIpV6.BaseAddress = new(ipv6ApiAddress);
+                if (IPAddress.TryParse(await httpClientIpV6.GetStringAsync((string?)null), out var currentIpAddressV6) &&
+                    currentIpAddressV6.AddressFamily == AddressFamily.InterNetworkV6)
+                {
+                    log.LogDebug("The current public ip v6 address is: {CurrentIpAddressV6}", currentIpAddressV6);
+                    publicAddresses.Add(currentIpAddressV6);
+                }
+                
+                return publicAddresses;
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, "Error while getting current public ip. Exception Message: {ExMessage}", ex.Message);
+
+                return [];
+            }
+        }
+
+        [ExcludeFromCodeCoverage]
+        public async Task StartSyncDnsRecordsAsync(CancellationToken stoppingToken)
+        {
+            await using (var scope = serviceProvider.CreateAsyncScope())
+            {
+                var netCupApiClient  = scope.ServiceProvider.GetRequiredService<NetCupApiClient>();
+                var netCupApiOptions = scope.ServiceProvider.GetRequiredService<IOptionsMonitor<NetCupApi>>();
+
+                var apiSessionId = await netCupApiClient.LoginAsync(netCupApiOptions.CurrentValue.Login);
+
+                var currentPublicIpAddresses =
+                    await netCupApiClient.GetCurrentPublicIpAsync(netCupApiOptions.CurrentValue.MyIp4ApiUrl,
+                                                                  netCupApiOptions.CurrentValue.MyIp6ApiUrl);
+
+                if (apiSessionId == null)
+                {
+                    log.LogError("ApiSessionId is null");
+
+                    return;
+                }
+
+                foreach (var (domainName, recordNamesToUpdate) in netCupApiOptions.CurrentValue.Domains)
+                {
+                    // Get DNS records for domain
+                    var currentDomainDnsRecords = await netCupApiClient.GetDnsRecordsForDomainAsync(apiSessionId, domainName);
+
+                    if (CurrentPublicIpChanged(currentPublicIpAddresses, currentDomainDnsRecords, recordNamesToUpdate, out var recordsToUpdate))
+                    {
+                        await netCupApiClient.UpdateDnsRecordsAsync(apiSessionId, domainName, recordsToUpdate);
+                    }
+                }
+
+                await netCupApiClient.LogoutAsync(apiSessionId);
+
+                await Task.Delay(netCupApiOptions.CurrentValue.RequestInterval!.Value, stoppingToken);
+            }
+        }
+
+    #endregion
     }
 }
