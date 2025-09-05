@@ -49,7 +49,7 @@ steps:
     inputs:
       command: 'test'
       projects: '**/*Tests.csproj'
-      arguments: '--collect "XPlat Code Coverage;Format=opencover" -e NETCUP_LOGIN_APIKEY="$(NETCUP_LOGIN_APIKEY)" -e NETCUP_LOGIN_APIPASSWORD="$(NETCUP_LOGIN_APIPASSWORD)" -e NETCUP_LOGIN_CUSTOMERNUMBER="$(NETCUP_LOGIN_CUSTOMERNUMBER)"'
+      arguments: '--verbosity detailed --collect "XPlat Code Coverage;Format=opencover" -e NETCUP_LOGIN_APIKEY="$(NETCUP_LOGIN_APIKEY)" -e NETCUP_LOGIN_APIPASSWORD="$(NETCUP_LOGIN_APIPASSWORD)" -e NETCUP_LOGIN_CUSTOMERNUMBER="$(NETCUP_LOGIN_CUSTOMERNUMBER)"'
 
   - task: PublishCodeCoverageResults@2
     inputs:
