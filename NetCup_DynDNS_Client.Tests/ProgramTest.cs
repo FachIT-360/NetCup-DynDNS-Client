@@ -46,8 +46,11 @@ namespace NetCup_DynDNS_Client.Tests
             _hostBuilder.Services.Configure<NetCupApi>(_hostBuilder.Configuration.GetSection("NetCupApi"));
 
             _hostBuilder.Services.AddHttpClient<NetCupApiClient>((sp, client) =>
+                                                                 {
                                                                      client.BaseAddress = sp.GetRequiredService<IOptionsMonitor<NetCupApi>>()
-                                                                                            .CurrentValue.EndpointUrl);
+                                                                                            .CurrentValue.EndpointUrl;
+                                                                     client.DefaultRequestVersion = HttpVersion.Version20;
+                                                                 });
 
             _hostBuilder.Services.AddSingleton<WorkerTask>();
 

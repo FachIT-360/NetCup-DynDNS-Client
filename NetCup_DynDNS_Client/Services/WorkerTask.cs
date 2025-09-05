@@ -79,21 +79,40 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                 
                 var httpClientIpV4 = new HttpClient();
                 httpClientIpV4.BaseAddress = new(ipv4ApiAddress, UriKind.Absolute);
-                    
-                if (IPAddress.TryParse(await httpClientIpV4.GetStringAsync((string?)null), out var currentIpAddressV4) &&
-                    currentIpAddressV4.AddressFamily == AddressFamily.InterNetwork)
+                httpClientIpV4.DefaultRequestVersion = HttpVersion.Version20;
+
+                using (var response = await httpClientIpV4.GetAsync((string?)null))
                 {
-                    log.LogDebug("The current public ip v4 address is: {CurrentIpAddressV4}", currentIpAddressV4);
-                    publicAddresses.Add(currentIpAddressV4);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var responseContent = await response.Content.ReadAsStringAsync();
+                        
+                        if (IPAddress.TryParse(responseContent, out var currentIpAddressV4) &&
+                            currentIpAddressV4.AddressFamily == AddressFamily.InterNetwork)
+                        {
+                            log.LogDebug("The current public ip v4 address is: {CurrentIpAddressV4}", currentIpAddressV4);
+                            publicAddresses.Add(currentIpAddressV4);
+                        }
+                    }
                 }
 
                 var httpClientIpV6 = new HttpClient();
                 httpClientIpV6.BaseAddress = new(ipv6ApiAddress, UriKind.Absolute);
-                if (IPAddress.TryParse(await httpClientIpV6.GetStringAsync((string?)null), out var currentIpAddressV6) &&
-                    currentIpAddressV6.AddressFamily == AddressFamily.InterNetworkV6)
+                httpClientIpV6.DefaultRequestVersion = HttpVersion.Version20;
+
+                using (var response = await httpClientIpV6.GetAsync((string?)null))
                 {
-                    log.LogDebug("The current public ip v6 address is: {CurrentIpAddressV6}", currentIpAddressV6);
-                    publicAddresses.Add(currentIpAddressV6);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var responseContent = await response.Content.ReadAsStringAsync();
+                        
+                        if (IPAddress.TryParse(responseContent, out var currentIpAddressV6) &&
+                            currentIpAddressV6.AddressFamily == AddressFamily.InterNetworkV6)
+                        {
+                            log.LogDebug("The current public ip v6 address is: {CurrentIpAddressV6}", currentIpAddressV6);
+                            publicAddresses.Add(currentIpAddressV6);
+                        }
+                    }
                 }
                 
                 return publicAddresses;
