@@ -22,7 +22,6 @@ namespace FachIT360.Utils.Dns.NetCup.Services
     #region Constants - Static fields - Fields
 
         private readonly ILogger<NetCupApiClient>   _log;
-        //private readonly IOptionsMonitor<NetCupApi> _netCupApiOptions;
 
         private const string JsonMimeType = "application/json";
         private const string SuccessState = "success";
@@ -32,13 +31,11 @@ namespace FachIT360.Utils.Dns.NetCup.Services
     #region Constructors and Destructors
 
         public NetCupApiClient(ILogger<NetCupApiClient> log,
-                               //IOptionsMonitor<NetCupApi> netCupApiOptions,
                                HttpClient httpClient)
         {
             _log                             = log;
             HttpClient                       = httpClient;
             HttpClient.DefaultRequestVersion = HttpVersion.Version20;
-            //_netCupApiOptions                = netCupApiOptions;
         }
 
     #endregion

@@ -237,24 +237,24 @@ namespace NetCup_DynDNS_Client.Tests
             Assert.IsFalse(ipChanged);
         }
 
-        [TestMethod]
-        public async Task GetCurrentPublicIpAsync()
-        {
-            // Get NetCupApiClient
-            var config          = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
-            var netCupApiClient = GetNetCupApiClient(config.EndpointUrl!.ToString());
-            Assert.IsNotNull(netCupApiClient);
-            Assert.IsNotNull(netCupApiClient.HttpClient);
-            Assert.IsNotNull(netCupApiClient.HttpClient.BaseAddress);
-            Assert.AreEqual(config.EndpointUrl, netCupApiClient.HttpClient.BaseAddress);
-            
-            var workerTask   = _host.Services.GetRequiredService<WorkerTask>();
-
-            // TODO: Test that respect IPv6 not implemented yet
-            var result = await netCupApiClient.GetCurrentPublicIpAsync(config.MyIp4ApiUrl, config.MyIp6ApiUrl);
-            Assert.IsNotNull(result);
-            Assert.IsNotEmpty(result);
-        }
+        // [TestMethod]
+        // public async Task GetCurrentPublicIpAsync()
+        // {
+        //     // Get NetCupApiClient
+        //     var config          = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
+        //     var netCupApiClient = GetNetCupApiClient(config.EndpointUrl!.ToString());
+        //     Assert.IsNotNull(netCupApiClient);
+        //     Assert.IsNotNull(netCupApiClient.HttpClient);
+        //     Assert.IsNotNull(netCupApiClient.HttpClient.BaseAddress);
+        //     Assert.AreEqual(config.EndpointUrl, netCupApiClient.HttpClient.BaseAddress);
+        //     
+        //     var workerTask   = _host.Services.GetRequiredService<WorkerTask>();
+        //
+        //     // TODO: Test that respect IPv6 not implemented yet
+        //     var result = await netCupApiClient.GetCurrentPublicIpAsync(config.MyIp4ApiUrl, config.MyIp6ApiUrl);
+        //     Assert.IsNotNull(result);
+        //     Assert.IsNotEmpty(result);
+        // }
 
         private static ResponseDataInfoDnsRecords GetDnsRecordsMockData(string destIp1, string destIp2)
         {

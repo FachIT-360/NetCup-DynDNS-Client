@@ -14,6 +14,11 @@ namespace FachIT360.Utils.Dns.NetCup
 {
     public class Program
     {
+    #region Constructors and Destructors
+
+        private Program() { }
+
+    #endregion
 
     #region Methods
 
@@ -33,8 +38,8 @@ namespace FachIT360.Utils.Dns.NetCup
             builder.Services.Configure<NetCupApi>(builder.Configuration.GetSection("NetCupApi"));
 
             builder.Services.AddHttpClient<NetCupApiClient>((sp, client) =>
-                                                                      client.BaseAddress = sp.GetRequiredService<IOptionsMonitor<NetCupApi>>()
-                                                                                             .CurrentValue.EndpointUrl);
+                                                                client.BaseAddress = sp.GetRequiredService<IOptionsMonitor<NetCupApi>>()
+                                                                                       .CurrentValue.EndpointUrl);
 
             builder.Services.AddSingleton<WorkerTask>();
             builder.Services.AddHostedService<WorkerService>();

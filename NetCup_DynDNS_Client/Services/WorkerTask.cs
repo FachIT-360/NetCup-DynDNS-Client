@@ -129,7 +129,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
         [ExcludeFromCodeCoverage]
         public async Task StartSyncDnsRecordsAsync(CancellationToken stoppingToken)
         {
-            await using (var scope = serviceProvider.CreateAsyncScope())
+            using (var scope = serviceProvider.CreateScope())
             {
                 var netCupApiClient  = scope.ServiceProvider.GetRequiredService<NetCupApiClient>();
                 var netCupApiOptions = scope.ServiceProvider.GetRequiredService<IOptionsMonitor<NetCupApi>>();
