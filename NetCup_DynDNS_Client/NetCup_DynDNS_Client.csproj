@@ -8,9 +8,9 @@
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <AssemblyName>netcup-dyndns</AssemblyName>
         <RootNamespace>FachIT360.Utils.Dns.NetCup</RootNamespace>
-        <AssemblyVersion>1.1.13.4116</AssemblyVersion>
-        <FileVersion>1.1.13.4116</FileVersion>
-        <Version>1.1.13</Version>
+        <AssemblyVersion>1.1.14.21600</AssemblyVersion>
+        <FileVersion>1.1.14.21600</FileVersion>
+        <Version>1.1.14</Version>
         <LangVersion>default</LangVersion>
         <!-- Publish Settings -->
         <!-- <PublishAot>true</PublishAot> -->

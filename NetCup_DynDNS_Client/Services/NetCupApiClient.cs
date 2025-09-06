@@ -68,11 +68,19 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                     publicAddresses.Add(currentIpAddressV4);
                 }
 
-                if (IPAddress.TryParse(await HttpClient.GetStringAsync(ipv6ApiAddress), out var currentIpAddressV6) &&
-                    currentIpAddressV6.AddressFamily == AddressFamily.InterNetworkV6)
+                try
                 {
-                    _log.LogDebug("The current public ip v6 address is: {CurrentIpAddressV6}", currentIpAddressV6);
-                    publicAddresses.Add(currentIpAddressV6);
+                    if (IPAddress.TryParse(await HttpClient.GetStringAsync(ipv6ApiAddress), out var currentIpAddressV6) &&
+                        currentIpAddressV6.AddressFamily == AddressFamily.InterNetworkV6)
+                    {
+                        _log.LogDebug("The current public ip v6 address is: {CurrentIpAddressV6}", currentIpAddressV6);
+                        publicAddresses.Add(currentIpAddressV6);
+                    }
+                }
+                catch (HttpRequestException ex) when(ex.Message.Contains("unreachable"))
+                {
+                    // Ignore IPv6 request exception may be the IPv6 can't be resolved.
+                    _log.LogWarning(ex, "The current public ip v6 address request failed.");
                 }
 
                 return publicAddresses;
