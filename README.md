@@ -49,8 +49,7 @@ NETCUP_LOGIN_CUSTOMERNUMBER
 
 * Der Test ist abhängig vom NetCup API Service
 
-`dotnet test -e NETCUP_LOGIN_APIKEY="SqW235M4XLRPbv69XDreZ0qdWJOoC5CKmPnvn6VTogSKHQjMWX" -e NETCUP_LOG
-IN_APIPASSWORD="LO2t4md76hiZLYISIuPqezMYbZjnmtIIX6Nx+auzyjS34cfd1v" -e NETCUP_LOGIN_CUSTOMERNUMBER="123456" --collect "XPlat Code Coverage;Format=opencover"`
+`dotnet test -e NETCUP_LOGIN_APIKEY="SqW235M4XLRPbv69XDreZ0qdWJOoC5CKmPnvn6VTogSKHQjMWX" -e NETCUP_LOGIN_APIPASSWORD="LO2t4md76hiZLYISIuPqezMYbZjnmtIIX6Nx+auzyjS34cfd1v" -e NETCUP_LOGIN_CUSTOMERNUMBER="123456" --collect "XPlat Code Coverage;Format=opencover"`
 
 # Run as Docker Container
 
