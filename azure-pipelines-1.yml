@@ -16,7 +16,7 @@ steps:
   inputs:
     command: 'build'
     projects: '**/*.csproj'
-    arguments: '--output $(Build.BinariesDirectory)'
+    arguments: '--output $(Build.BinariesDirectory)/$(Build.Repository.Name)'
 
 - task: PowerShell@2
   inputs:
