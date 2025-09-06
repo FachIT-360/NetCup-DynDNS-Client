@@ -64,3 +64,11 @@ steps:
   - task: SonarCloudPublish@3
     inputs:
       pollingTimeoutSec: '300'
+
+  - task: Docker@2
+    inputs:
+      containerRegistry: 'FachIT 360 - Docker Registry'
+      repository: 'network/fit360-netcup-ddns-client'
+      command: 'buildAndPush'
+      Dockerfile: '**/Dockerfile'
+      buildContext: '.'
