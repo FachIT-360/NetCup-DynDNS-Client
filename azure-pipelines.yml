@@ -69,7 +69,7 @@ steps:
     targetType: 'inline'
     script: |
       $binary = "$(Build.BinariesDirectory)/$(Build.Repository.Name)/netcup-dyndns.dll"
-      $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion
+      $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion.Replace('+', '-')
       Write-Host "##vso[task.setvariable variable=dockerTag]$version"
 
 - task: Docker@2
