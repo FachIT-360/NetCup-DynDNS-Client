@@ -19,8 +19,16 @@ steps:
     arguments: '--output $(Build.BinariesDirectory)/$(Build.Repository.Name)'
 
 - task: PowerShell@2
+  displayName: 'Get assembly version'
   inputs:
     targetType: 'inline'
     script: |
-      Write-Host "##[debug] $(Build.BinariesDirectory)"
-  displayName: 'Get assambly version'
+      $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion
+      Write-Host "##vso[task.setvariable variable=dockerTag]$version"
+      
+- task: PowerShell@2
+  displayName: 'Show docker tag'
+  inputs:
+    targetType: 'inline'
+    script: |
+      Write-Host "##[debug] $(dockerTag)"

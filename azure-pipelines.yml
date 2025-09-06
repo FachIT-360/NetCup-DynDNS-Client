@@ -44,6 +44,7 @@ steps:
     inputs:
       command: build
       projects: '*.sln'
+      arguments: '--output $(Build.BinariesDirectory)/$(Build.Repository.Name)'
 
   - task: DotNetCoreCLI@2
     displayName: 'Execute Tests'
@@ -65,6 +66,15 @@ steps:
     inputs:
       pollingTimeoutSec: '300'
 
+  - task: PowerShell@2
+    displayName: 'Get assembly version'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion
+        Write-Host "##vso[task.setvariable variable=dockerTag]$version"
+        Write-Host "##[debug] $(dockerTag)"
+        
   - task: Docker@2
     inputs:
       containerRegistry: 'FachIT 360 - Docker Registry'
