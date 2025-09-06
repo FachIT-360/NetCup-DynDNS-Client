@@ -4,9 +4,6 @@ trigger:
 resources:
 - repo: self
 
-variables:
-  tag: '$(Build.BuildId)'
-
 pool:
   vmImage: ubuntu-latest
 

@@ -3,6 +3,8 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+trigger: manual
+
 pool:
   vmImage: ubuntu-latest
 
@@ -23,6 +25,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
+      $binary = "$(Build.BinariesDirectory)/$(Build.Repository.Name)/NetCup-DynDns-Client.dll"
       $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion
       Write-Host "##vso[task.setvariable variable=dockerTag]$version"
       
