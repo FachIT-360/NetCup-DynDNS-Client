@@ -27,7 +27,7 @@ steps:
     script: |
       $binary = "$(Build.BinariesDirectory)/$(Build.Repository.Name)/NetCup-DynDns-Client.dll"
       Write-Host "##[Debug] $binary"
-      $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$binary").ProductVersion
+      $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion
       Write-Host "##vso[task.setvariable variable=dockerTag]$version"
       
 - task: PowerShell@2
