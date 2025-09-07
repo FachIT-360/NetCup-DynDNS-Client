@@ -1,6 +1,9 @@
 trigger:
 - main
 
+variables:
+  DOCKER_CLI_EXPERIMENTAL: 'true'
+  
 resources:
 - repo: self
 
@@ -12,7 +15,7 @@ steps:
   displayName: 'Install .Net SDK 9.0'
   inputs:
     packageType: 'sdk'
-    version: '9.0.x'
+    version: '9.x'
 
 - task: DotNetCoreCLI@2
   displayName: 'Restore projects in Sulution'
@@ -73,11 +76,11 @@ steps:
       Write-Host "##vso[task.setvariable variable=dockerTag]$version"
 
 - task: Docker@2
-  displayName: 'Build and Push Docker Image'
+  displayName: 'Build and Push Docker Image (amd64)'
   inputs:
     containerRegistry: 'FachIT 360 - Docker Registry'
     repository: 'network/fit360-netcup-ddns-client'
     command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
     buildContext: '.'
-    tags: '$(dockerTag)'
+    tags: '$(dockerTag)-amd64'

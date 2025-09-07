@@ -14,7 +14,7 @@ RUN dotnet restore "./NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj"
 COPY . .
 WORKDIR "/src/NetCup_DynDNS_Client"
 
-RUN dotnet build "./NetCup_DynDNS_Client.csproj" -c "$BUILD_CONFIGURATION" -o /app/build
+RUN dotnet build "./NetCup_DynDNS_Client.csproj" -c "$BUILD_CONFIGURATION" -o /app/build --no-restore
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Debug

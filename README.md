@@ -56,6 +56,10 @@ NETCUP_LOGIN_CUSTOMERNUMBER
 
 # Run in Kubernetes
 
+# Known Issues
+
+IPv6
+
 #### Support my work
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/J3J01JYMKA)
