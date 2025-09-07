@@ -5,16 +5,38 @@
 
 trigger: none
 
+resources:
+- repo: self
+
 pool:
   vmImage: ubuntu-latest
 
+variables:
+  DOCKER_CLI_EXPERIMENTAL: 'true'
+
 steps:
+- task: DockerInstaller@0
+  displayName: 'Install Docker'
+  inputs:
+    dockerVersion: '28.1.1'
+
+- task: PowerShell@2
+  displayName: 'Set up Docker Buildx and QEMU'
+  inputs:
+    targetType: inline
+    script: |
+      docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      docker buildx create --name container --driver docker-container --use
+      docker buildx inspect --bootstrap
+
 - task: UseDotNet@2
+  displayName: 'Install .NET 9 SDK'
   inputs:
     packageType: 'sdk'
     version: '9.x'
 
 - task: DotNetCoreCLI@2
+  displayName: 'dotnet Build project'
   inputs:
     command: 'build'
     projects: '**/*.csproj'
@@ -26,12 +48,20 @@ steps:
     targetType: 'inline'
     script: |
       $binary = "$(Build.BinariesDirectory)/$(Build.Repository.Name)/netcup-dyndns.dll"
-      $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion
+      $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion.Replace('+', '-').Substring(0, 10)
       Write-Host "##vso[task.setvariable variable=dockerTag]$version"
-      
+
 - task: PowerShell@2
-  displayName: 'Show docker tag'
+  displayName: 'Show Docker tag'
   inputs:
     targetType: 'inline'
     script: |
       Write-Host "##[debug] $(dockerTag)"
+
+- task: PowerShell@2
+  displayName: 'Build multi-arch Docker image'
+  inputs:
+    targetType: inline
+    script: |
+      docker login -u $(docker-username) -p $(docker-username) registry.fachit360.de
+      docker buildx build -f .\NetCup_DynDNS_Client\Dockerfile --platform linux/amd64,linux/arm64 --builder container --push -t registry.fachit360.de/network/fit360-netcup-ddns-client:$(dockerTag)
