@@ -63,8 +63,8 @@ steps:
   inputs:
     targetType: inline
     script: |
-      $path=".\NetCup_DynDNS_Client\Dockerfile"
+      $path="$(Build.BinariesDirectory)/$(Build.Repository.Name)/NetCup_DynDNS_Client/Dockerfile"
       If (!(Test-Path $path)) { Write-Host "##[debug] Dockerfile not found at $path" } `
       else {Write-Host "##[debug] Dockerfile found at $path"}
       #echo $(docker-password) | docker login -u $(docker-username) --password-stdin registry.fachit360.de
-      #docker buildx build -f .\NetCup_DynDNS_Client\Dockerfile --platform linux/amd64,linux/arm64 --builder container --push -t registry.fachit360.de/network/fit360-netcup-ddns-client:$(dockerTag) .
+      #docker buildx build -f $(Build.BinariesDirectory)/$(Build.Repository.Name)\NetCup_DynDNS_Client\Dockerfile --platform linux/amd64,linux/arm64 --builder container --push -t registry.fachit360.de/network/fit360-netcup-ddns-client:$(dockerTag) .
