@@ -63,7 +63,7 @@ steps:
   inputs:
     targetType: inline
     script: |
-      $path="$(Build.BinariesDirectory)/$(Build.Repository.Name)/Dockerfile"
+      $path="$(Build.SourcesDirectory)/NetCup_DynDNS_Client/Dockerfile"
       If (!(Test-Path $path)) { Write-Host "##[debug] Dockerfile not found at $path" } `
       else {Write-Host "##[debug] Dockerfile found at $path"}
       #echo $(docker-password) | docker login -u $(docker-username) --password-stdin registry.fachit360.de
