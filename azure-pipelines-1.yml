@@ -64,7 +64,7 @@ steps:
     targetType: inline
     script: |
       $path=".\NetCup_DynDNS_Client\Dockerfile"
-      If (!(Test-Path -path $path)) `
+      If (!(Test-Path $path)) `
       { `
         Write-Host "##[debug] Dockerfile not found at" $path `
       }
