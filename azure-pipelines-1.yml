@@ -64,4 +64,4 @@ steps:
     targetType: inline
     script: |
       docker login -u $(docker-username) -p $(docker-username) registry.fachit360.de
-      docker buildx build -f .\NetCup_DynDNS_Client\Dockerfile --platform linux/amd64,linux/arm64 --builder container --push -t registry.fachit360.de/network/fit360-netcup-ddns-client:$(dockerTag)
+      docker buildx build -f .\NetCup_DynDNS_Client\Dockerfile --platform linux/amd64,linux/arm64 --builder container --push -t registry.fachit360.de/network/fit360-netcup-ddns-client:$(dockerTag) .
