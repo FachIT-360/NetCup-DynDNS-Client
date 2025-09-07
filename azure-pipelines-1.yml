@@ -48,7 +48,7 @@ steps:
     targetType: 'inline'
     script: |
       $binary = "$(Build.BinariesDirectory)/$(Build.Repository.Name)/netcup-dyndns.dll"
-      $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion.Replace('+', '-').Substring(0, 15)
+      $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion.Replace('+', '-').Substring(0, 17)
       Write-Host "##vso[task.setvariable variable=dockerTag]$version"
 
 - task: PowerShell@2
@@ -66,5 +66,5 @@ steps:
       $path="$(Build.SourcesDirectory)/NetCup_DynDNS_Client/Dockerfile"
       If (!(Test-Path $path)) { Write-Host "##[debug] Dockerfile not found at $path" } `
       else {Write-Host "##[debug] Dockerfile found at $path"}
-      #echo $(docker-password) | docker login -u $(docker-username) --password-stdin registry.fachit360.de
-      #docker buildx build -f $(Build.BinariesDirectory)/$(Build.Repository.Name)\NetCup_DynDNS_Client\Dockerfile --platform linux/amd64,linux/arm64 --builder container --push -t registry.fachit360.de/network/fit360-netcup-ddns-client:$(dockerTag) .
+      echo $(docker-password) | docker login -u $(docker-username) --password-stdin registry.fachit360.de
+      docker buildx build -f $(Build.BinariesDirectory)/$(Build.Repository.Name)\NetCup_DynDNS_Client\Dockerfile --platform linux/amd64,linux/arm64 --builder container --push -t registry.fachit360.de/network/fit360-netcup-ddns-client:$(dockerTag) .
