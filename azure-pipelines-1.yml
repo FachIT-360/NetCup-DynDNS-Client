@@ -10,6 +10,9 @@ resources:
 
 pool:
   vmImage: ubuntu-latest
+  name: Local FIT360-R-W-001
+  demands:
+    - Agent.Name -equals FIT360-R-W-001
 
 variables:
   DOCKER_CLI_EXPERIMENTAL: 'true'
