@@ -52,6 +52,8 @@ steps:
     pwsh: true
     targetType: 'inline'
     script: |
+      Remove-TypeData -TypeName System.Security.AccessControl.ObjectSecurity -MemberName AccessToString -ErrorAction SilentlyContinue
+      $PSModuleAutoLoadingPreference = 'None'
       $binary = "$(Build.BinariesDirectory)/$(Build.Repository.Name)/netcup-dyndns.dll"
       $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion.Replace('+', '-').Substring(0, 17)
       Write-Host "##vso[task.setvariable variable=dockerTag]$version"
