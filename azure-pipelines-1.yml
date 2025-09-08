@@ -44,7 +44,7 @@ steps:
   inputs:
     command: 'build'
     projects: '**/*.csproj'
-    arguments: '--output $(Build.BinariesDirectory)/$(Build.Repository.Name)'
+    arguments: '--output "$(Build.BinariesDirectory)/$(Build.Repository.Name)"'
 
 - task: PowerShell@2
   displayName: 'Get assembly version'
