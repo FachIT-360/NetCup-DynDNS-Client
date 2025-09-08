@@ -7,6 +7,9 @@ trigger: none
 
 pool:
   vmImage: ubuntu-latest
+  name: Local FIT360-R-W-001
+  demands:
+    - Agent.Name -equals FIT360-R-W-001
 
 steps:
 - task: UseDotNet@2
