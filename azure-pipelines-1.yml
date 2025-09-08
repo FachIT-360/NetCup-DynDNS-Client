@@ -49,6 +49,7 @@ steps:
 - task: PowerShell@2
   displayName: 'Get assembly version'
   inputs:
+    pwsh: true
     targetType: 'inline'
     script: |
       $binary = "$(Build.BinariesDirectory)/$(Build.Repository.Name)/netcup-dyndns.dll"
