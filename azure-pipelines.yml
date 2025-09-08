@@ -18,7 +18,7 @@ steps:
     version: '9.x'
 
 - task: DotNetCoreCLI@2
-  displayName: 'Restore projects in Sulution'
+  displayName: 'Restore projects in Solution'
   inputs:
     command: 'restore'
     projects: '*.sln'
@@ -37,7 +37,7 @@ steps:
       sonar.cs.opencover.reportsPaths=$(Agent.TempDirectory)/**/coverage.opencover.xml
 
 - task: DotNetCoreCLI@2
-  displayName: 'Build all projects in solution'
+  displayName: 'Build all projects in Solution'
   inputs:
     command: build
     projects: '*.sln'
@@ -71,7 +71,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: 
-      $xml = [Xml] (Get-Content $(Build.SourcesDirectory)/NetCup_DynDNS_Client/*.csproj) 
+      $xml = [Xml] (Get-Content $(Build.SourcesDirectory)/NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj) 
       $version = $xml.Project.PropertyGroup.Version
       write-host "##vso[task.setvariable variable=appVersion]$version"
       #$binary = "$(Build.BinariesDirectory)/$(Build.Repository.Name)/netcup-dyndns.dll"
