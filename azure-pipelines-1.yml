@@ -17,6 +17,7 @@ pool:
 variables:
   DOCKER_CLI_EXPERIMENTAL: 'true'
   BUILDKIT_PROGRESS: 'plain'
+  AZP_AGENT_CLEANUP_PSMODULES_IN_POWERSHELL: 'true'
 
 steps:
 - task: DockerInstaller@0
