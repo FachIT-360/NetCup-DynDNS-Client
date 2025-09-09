@@ -27,6 +27,7 @@ steps:
       else {Write-Host "##[debug] File found at $csprojPath"} `
       $xml = [Xml] (Get-Content -Raw $csprojPath);
       $version = $xml.SelectSingleNode('//Project/PropertyGroup/Version').InnerText.Trim();
+      $version = $version + "-" + $(Build.SourceVersion).SubString(0,10) + "-amd64";
       write-host "##vso[task.setvariable variable=appVersion]$version";
       #$binary = "$(Build.BinariesDirectory)/$(Build.Repository.Name)/netcup-dyndns.dll"
       #$version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion.Replace('+', '-')
@@ -36,7 +37,7 @@ steps:
   inputs:
     targetType: inline
     script: |
-      Write-Host '##[debug] "$(appVersion)-" + "$(Build.SourceVersion)".SubString(0,10) + "-amd64"'
+      Write-Host "##[debug] $(version)"
 
 - task: DotNetCoreCLI@2
   displayName: 'Restore projects in Solution'
