@@ -72,7 +72,7 @@ steps:
     targetType: 'inline'
     script: 
       $csprojPath = "$(Build.SourcesDirectory)/NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj"
-      If (!(Test-Path $csprojPath)) { Write-Host "##[debug] File not found at $csprojPath" } `
+      if (!(Test-Path $csprojPath)) { Write-Host "##[debug] File not found at $csprojPath" } `
       else {Write-Host "##[debug] File found at $csprojPath"}
       $xml = [Xml] (Get-Content $csprojPath) 
       $version = $xml.Project.PropertyGroup.Version
