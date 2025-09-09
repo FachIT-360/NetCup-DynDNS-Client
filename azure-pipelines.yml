@@ -71,7 +71,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: 
-      $csprojPath = "$(Build.SourcesDirectory)/NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj"
+      $csprojPath = "$(Build.SourcesDirectory)/NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj";
       if (!(Test-Path $csprojPath)) { Write-Host "##[debug] File not found at $csprojPath" } `
       else {Write-Host "##[debug] File found at $csprojPath"}
       $xml = [Xml] (Get-Content $csprojPath) 
