@@ -71,7 +71,10 @@ steps:
   inputs:
     targetType: 'inline'
     script: 
-      $xml = [Xml] (Get-Content $(Build.SourcesDirectory)/NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj) 
+      $csprojPath = "$(Build.SourcesDirectory)/NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj"
+      If (!(Test-Path $csprojPath)) { Write-Host "##[debug] File not found at $csprojPath" } `
+      else {Write-Host "##[debug] File found at $csprojPath"}
+      $xml = [Xml] (Get-Content $csprojPath) 
       $version = $xml.Project.PropertyGroup.Version
       write-host "##vso[task.setvariable variable=appVersion]$version"
       #$binary = "$(Build.BinariesDirectory)/$(Build.Repository.Name)/netcup-dyndns.dll"
