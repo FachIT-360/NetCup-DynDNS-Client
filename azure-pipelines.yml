@@ -27,7 +27,8 @@ steps:
       else {Write-Host "##[debug] File found at $csprojPath"} `
       $xml = [Xml] (Get-Content -Raw $csprojPath);
       $version = $xml.SelectSingleNode('//Project/PropertyGroup/Version').InnerText.Trim();
-      $version = "$(version)-$((Build.SourceVersion).SubString(0,10))-amd64";
+      $shortSha = $env:BUILD_SOURCEVERSION.SubString(0, 10);
+      $version = "$version-$shortSha-amd64";
       write-host "##vso[task.setvariable variable=appVersion]$version";
       #$binary = "$(Build.BinariesDirectory)/$(Build.Repository.Name)/netcup-dyndns.dll"
       #$version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion.Replace('+', '-')
