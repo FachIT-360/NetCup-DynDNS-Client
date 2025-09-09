@@ -85,14 +85,14 @@ steps:
   inputs:
     targetType: inline
     script: |
-      Write-Host "##[debug] $(appVersion)-$(Build.SourceVersion).SubString(0,10)-amd64"
+      Write-Host '##[debug] "$(appVersion)-" + "$(Build.SourceVersion)".SubString(0,10) + "-amd64"'
 
-- task: Docker@2
-  displayName: 'Build and Push Docker Image (amd64)'
-  inputs:
-    containerRegistry: 'FachIT 360 - Docker Registry'
-    repository: 'network/fit360-netcup-ddns-client'
-    command: 'buildAndPush'
-    Dockerfile: '**/Dockerfile'
-    buildContext: '.'
-    tags: '"$(appVersion)-$(Build.SourceVersion).SubString(0,10)-amd64"'
+# - task: Docker@2
+#   displayName: 'Build and Push Docker Image (amd64)'
+#   inputs:
+#     containerRegistry: 'FachIT 360 - Docker Registry'
+#     repository: 'network/fit360-netcup-ddns-client'
+#     command: 'buildAndPush'
+#     Dockerfile: '**/Dockerfile'
+#     buildContext: '.'
+#     tags: '"$(appVersion)-$(Build.SourceVersion).SubString(0,10)-amd64"'
