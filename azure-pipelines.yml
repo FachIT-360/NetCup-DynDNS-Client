@@ -38,7 +38,7 @@ steps:
   inputs:
     targetType: inline
     script: |
-      Write-Host "##[debug] $(version)"
+      Write-Host "##[debug] $(dockerTag)"
 
 - task: DotNetCoreCLI@2
   displayName: 'Restore projects in Solution'
