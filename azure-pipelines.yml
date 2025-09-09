@@ -23,22 +23,11 @@ steps:
     targetType: 'inline'
     script: 
       $csprojPath = "$(Build.SourcesDirectory)/NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj";
-      if (!(Test-Path $csprojPath)) { Write-Host "##[debug] File not found at $csprojPath" } `
-      else {Write-Host "##[debug] File found at $csprojPath"} `
       $xml = [Xml] (Get-Content -Raw $csprojPath);
       $version = $xml.SelectSingleNode('//Project/PropertyGroup/Version').InnerText.Trim();
       $shortSha = $env:BUILD_SOURCEVERSION.SubString(0, 10);
       $version = "$version-$shortSha-amd64";
       write-host "##vso[task.setvariable variable=appVersion]$version";
-      #$binary = "$(Build.BinariesDirectory)/$(Build.Repository.Name)/netcup-dyndns.dll"
-      #$version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion.Replace('+', '-')
-      #Write-Host "##vso[task.setvariable variable=dockerTag]$version"
-
-- task: PowerShell@2
-  inputs:
-    targetType: inline
-    script: |
-      Write-Host "##[debug] $(appVersion)"
 
 - task: DotNetCoreCLI@2
   displayName: 'Restore projects in Solution'
@@ -91,12 +80,12 @@ steps:
 
 
 
-# - task: Docker@2
-#   displayName: 'Build and Push Docker Image (amd64)'
-#   inputs:
-#     containerRegistry: 'FachIT 360 - Docker Registry'
-#     repository: 'network/fit360-netcup-ddns-client'
-#     command: 'buildAndPush'
-#     Dockerfile: '**/Dockerfile'
-#     buildContext: '.'
-#     tags: '"$(appVersion)-$(Build.SourceVersion).SubString(0,10)-amd64"'
+- task: Docker@2
+  displayName: 'Build and Push Docker Image (amd64)'
+  inputs:
+    containerRegistry: 'FachIT 360 - Docker Registry'
+    repository: 'network/fit360-netcup-ddns-client'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
+    buildContext: '.'
+    tags: '$(appVersion)'
