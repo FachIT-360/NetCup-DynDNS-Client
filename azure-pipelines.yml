@@ -17,6 +17,27 @@ steps:
     packageType: 'sdk'
     version: '9.x'
 
+- task: PowerShell@2
+  displayName: 'Get assembly version'
+  inputs:
+    targetType: 'inline'
+    script: 
+      $csprojPath = "$(Build.SourcesDirectory)/NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj";
+      if (!(Test-Path $csprojPath)) { Write-Host "##[debug] File not found at $csprojPath" } `
+      else {Write-Host "##[debug] File found at $csprojPath"} `
+      $xml = [Xml] (Get-Content -Raw $csprojPath);
+      $version = $xml.SelectSingleNode('//Project/PropertyGroup/Version').InnerText.Trim();
+      write-host "##vso[task.setvariable variable=appVersion]$version";
+      #$binary = "$(Build.BinariesDirectory)/$(Build.Repository.Name)/netcup-dyndns.dll"
+      #$version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion.Replace('+', '-')
+      #Write-Host "##vso[task.setvariable variable=dockerTag]$version"
+
+- task: PowerShell@2
+  inputs:
+    targetType: inline
+    script: |
+      Write-Host '##[debug] "$(appVersion)-" + "$(Build.SourceVersion)".SubString(0,10) + "-amd64"'
+
 - task: DotNetCoreCLI@2
   displayName: 'Restore projects in Solution'
   inputs:
@@ -66,26 +87,7 @@ steps:
   inputs:
     pollingTimeoutSec: '300'
 
-- task: PowerShell@2
-  displayName: 'Get assembly version'
-  inputs:
-    targetType: 'inline'
-    script: 
-      $csprojPath = "$(Build.SourcesDirectory)/NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj";
-      if (!(Test-Path $csprojPath)) { Write-Host "##[debug] File not found at $csprojPath" } `
-      else {Write-Host "##[debug] File found at $csprojPath"} `
-      $xml = [Xml] (Get-Content $csprojPath);
-      $version = $xml.Project.PropertyGroup.Version.Trim();
-      write-host "##vso[task.setvariable variable=appVersion]$version";
-      #$binary = "$(Build.BinariesDirectory)/$(Build.Repository.Name)/netcup-dyndns.dll"
-      #$version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion.Replace('+', '-')
-      #Write-Host "##vso[task.setvariable variable=dockerTag]$version"
 
-- task: PowerShell@2
-  inputs:
-    targetType: inline
-    script: |
-      Write-Host '##[debug] "$(appVersion)-" + "$(Build.SourceVersion)".SubString(0,10) + "-amd64"'
 
 # - task: Docker@2
 #   displayName: 'Build and Push Docker Image (amd64)'
