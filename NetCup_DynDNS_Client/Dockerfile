@@ -18,7 +18,7 @@ RUN dotnet build "./NetCup_DynDNS_Client.csproj" -c "$BUILD_CONFIGURATION" -o /a
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Debug
-RUN dotnet publish "./NetCup_DynDNS_Client.csproj" -c "$BUILD_CONFIGURATION" -o /app/publish /p:UseAppHost=true
+RUN dotnet publish "./NetCup_DynDNS_Client.csproj" -c "$BUILD_CONFIGURATION" -o /app/publish /p:UseAppHost=true  -r linux-x64 --self-contained true
 
 FROM mcr.microsoft.com/dotnet/runtime-deps:9.0 AS final
 USER app

@@ -12,10 +12,6 @@
         <FileVersion>1.1.14.21600</FileVersion>
         <Version>1.1.14</Version>
         <LangVersion>default</LangVersion>
-        <!-- Publish Settings -->
-        <!-- <PublishAot>true</PublishAot> -->
-        <SelfContained>true</SelfContained>
-        <PublishSingleFile>true</PublishSingleFile>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -4,6 +4,10 @@
 
 using System.Diagnostics.CodeAnalysis;
 
+using FachIT360.Utils.Dns.NetCup.Models.AppSettings;
+
+using Microsoft.Extensions.Options;
+
 namespace FachIT360.Utils.Dns.NetCup.Services
 {
     [ExcludeFromCodeCoverage]
@@ -11,19 +15,21 @@ namespace FachIT360.Utils.Dns.NetCup.Services
     {
     #region Constants - Static fields - Fields
 
-        private readonly IHostApplicationLifetime _hostLifetime;
-        private readonly ILogger<WorkerService>   _log;
-        private readonly WorkerTask               _workerTask;
+        private readonly IHostApplicationLifetime   _hostLifetime;
+        private readonly ILogger<WorkerService>     _log;
+        private readonly WorkerTask                 _workerTask;
+        private readonly IOptionsMonitor<NetCupApi> _netCupApiOptions;
 
     #endregion
 
     #region Constructors and Destructors
 
-        public WorkerService(ILogger<WorkerService> log, IHostApplicationLifetime hostLifetime, WorkerTask workerTask)
+        public WorkerService(ILogger<WorkerService> log, IHostApplicationLifetime hostLifetime, IOptionsMonitor<NetCupApi> netCupApiOptions, WorkerTask workerTask)
         {
-            _log          = log;
-            _hostLifetime = hostLifetime;
-            _workerTask   = workerTask;
+            _log              = log;
+            _hostLifetime     = hostLifetime;
+            _workerTask       = workerTask;
+            _netCupApiOptions = netCupApiOptions;
         }
 
     #endregion
@@ -53,6 +59,10 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                 catch (Exception ex)
                 {
                     _log.LogError(ex, "An error occurred while updating the DynDNS records. Exception Message: {ExMessage}", ex.Message);
+                }
+                finally
+                {
+                    await Task.Delay(_netCupApiOptions.CurrentValue.RequestInterval!.Value, stoppingToken);
                 }
             }
         }
