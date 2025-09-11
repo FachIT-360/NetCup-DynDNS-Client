@@ -1,5 +1,7 @@
 // --------------------------------------------------------------------------------------------------------------------
-// (C) 2025 by FachIT360 - Marcus Reinhart
+// SPDX License Identifier: MIT
+// Copyright (c) 2025 by FachIT 360 - Marcus Reinhart
+// See the LICENSE file in the project root directory for details.
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Diagnostics.CodeAnalysis;
@@ -17,14 +19,15 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
         private readonly IHostApplicationLifetime   _hostLifetime;
         private readonly ILogger<WorkerService>     _log;
-        private readonly WorkerTask                 _workerTask;
         private readonly IOptionsMonitor<NetCupApi> _netCupApiOptions;
+        private readonly WorkerTask                 _workerTask;
 
     #endregion
 
     #region Constructors and Destructors
 
-        public WorkerService(ILogger<WorkerService> log, IHostApplicationLifetime hostLifetime, IOptionsMonitor<NetCupApi> netCupApiOptions, WorkerTask workerTask)
+        public WorkerService(ILogger<WorkerService> log, IHostApplicationLifetime hostLifetime, IOptionsMonitor<NetCupApi> netCupApiOptions,
+                             WorkerTask workerTask)
         {
             _log              = log;
             _hostLifetime     = hostLifetime;

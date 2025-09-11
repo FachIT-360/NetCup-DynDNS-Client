@@ -1,5 +1,7 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// (C) 2025 by FachIT360 - Marcus Reinhart
+// SPDX License Identifier: MIT
+// Copyright (c) 2025 by FachIT 360 - Marcus Reinhart
+// See the LICENSE file in the project root directory for details.
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Diagnostics.CodeAnalysis;
@@ -79,12 +81,11 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                 var publicAddresses = new List<IPAddress>();
 
 
-
                 if (ipv4ApiAddress != null)
                 {
                     var httpClientIpV4 = new HttpClient();
                     httpClientIpV4.BaseAddress = new(ipv4ApiAddress, UriKind.Absolute);
-                    
+
                     httpClientIpV4.DefaultRequestVersion = HttpVersion.Version20;
 
                     using (var response = await httpClientIpV4.GetAsync((string?)null))
@@ -114,7 +115,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                         if (response.IsSuccessStatusCode)
                         {
                             var responseContent = await response.Content.ReadAsStringAsync();
-                        
+
                             if (IPAddress.TryParse(responseContent, out var currentIpAddressV6) &&
                                 currentIpAddressV6.AddressFamily == AddressFamily.InterNetworkV6)
                             {
@@ -124,7 +125,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                         }
                     }
                 }
-                
+
                 return publicAddresses;
             }
             catch (Exception ex)

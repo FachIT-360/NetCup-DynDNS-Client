@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="DeveloperToolsToolWindowSettingsV1" lastSelectedContentNodeId="hashing-transformer" pluginVersion="7.1.0">
+  <component name="DeveloperToolsToolWindowSettingsV1" lastSelectedContentNodeId="base64-encoder-decoder" pluginVersion="7.1.0">
     <developerToolsConfigurations>
       <developerToolConfiguration developerToolId="qr-code-generator" id="301d9da5-9d29-49df-91ca-8ba2f5ad79da" name="Workbench">
         <properties>
@@ -17,8 +17,8 @@
       </developerToolConfiguration>
       <developerToolConfiguration developerToolId="base64-encoder-decoder" id="ea0c6a2e-b089-4bc5-8995-3411f49b09c6" name="Workbench">
         <properties>
-          <property key="sourceText" type="INPUT" value="kotlin.String|D2EMHeD1d3hVdRozd2Y8LsJreFFO4FNKTWVGYkS+yERybEOJSN" />
-          <property key="targetText" type="INPUT" value="kotlin.String|RDJFTUhlRDFkM2hWZFJvemQyWThMc0pyZUZGTzRGTktUV1ZHWWtTK3lFUnliRU9KU04=" />
+          <property key="sourceText" type="INPUT" value="kotlin.String|I'm an API Password that is base64 encoded and used for Kubernetes" />
+          <property key="targetText" type="INPUT" value="kotlin.String|SSdtIGFuIEFQSSBQYXNzd29yZCB0aGF0IGlzIGJhc2U2NCBlbmNvZGVkIGFuZCB1c2VkIGZvciBLdWJlcm5ldGVz" />
         </properties>
       </developerToolConfiguration>
       <developerToolConfiguration developerToolId="json-text-escape" id="ace709b4-d5e6-4f03-b891-22be578df8cc" name="Workbench">
