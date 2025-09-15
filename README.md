@@ -23,7 +23,7 @@ After downloading you can extract the archive to a folder of your choice.
 
 The easiest and fastest way to install the client is by editing the "appsettings.json" file in the main directory.
 
-> <span style="color:cornflowerblue">🛈 Note!</span><br/>  
+> #### <span style="color:red">&#x26A0;&#xfe0f; Note!</span><br/>  
 > It is not recommended to store the API credentials in the appsetting.json on publicly accessible computers.
 >
 > Instead, use environment variables. In the case of a docker, use the docker secret feature. In the case of Kubernetes, use the Kubernetes secrets.  
@@ -71,7 +71,7 @@ Example for the appsettings.json:
       ]
     }
   }
-}  
+}
 ````  
 
 ### Configure Domains and DNS Records
@@ -118,9 +118,9 @@ Then run the comand inside the folder where you extract the binaries:
 
 `./netcup-dyndns.exe`
 
-## Run on a virtualization platform like Docker or Kubernetes
+## Run on Docker or Kubernetes
 
-You can run the client on a virtualization platform like Docker or Kubernetes. I'm providing a Docker image of the latest release on Docker Hub.  
+You can run the client in a Docker container or container orchestration platform like Kubernetes. I'm providing a Docker image of the latest release on Docker Hub.  
 You will find the image here: https://hub.docker.com/repository/docker/mreinhart2805/fit360-netcup-ddns-client/general.  
 The following sections will show you how to run the client on Docker or Kubernetes.
 
@@ -129,7 +129,17 @@ The following sections will show you how to run the client on Docker or Kubernet
 
 ### Run as Kubernetes deployment
 
-#### Add Kubernetes Namespac
+#### Prerequisite
+
+* A ready-to-use Kubernetes Cluster
+* Installed kubectl (https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+
+> #### <span style="color:red">&#x26A0;&#xfe0f; Note!</span><br/>  
+> Make sure you have set the correct Kubernetes cluster context.<br/>
+> To check the current context, run the following command: `kubectl config current-context`<br/>
+> To list all contexts, run the following command: `kubectl config get-contexts`<br/> 
+> To set the correct context, run the following command: `kubectl config use-context <context name>`
+
 #### Add Kubernetes Namespace
 
 First, we need a namespace. To add a namespace to your Kubernetes cluster, you can use the following command:
@@ -155,9 +165,10 @@ data:
 
 Before you exchange the placeholders for the credentials, you must base64 encode the values.
 
-Example: `echo -ne "I'm an API Key that is base64 encoded and used for Kubernetes secret" | base64 -w0`
+Example:<br/>
+`echo -ne "I'm an API Key that is base64 encoded and used for Kubernetes secret" | base64 -w0`
 
-Insert the encoded string to the right property and save the file as `netcup-dns-api-secrets.yaml`.
+Insert the encoded strings to the right property and save the file as `netcup-dns-api-secrets.yaml`.
 Now we can apply the secret definition to the Kubernetes cluster. We can do this by running the following command:
 
 `kubectl apply -f netcup-dns-api-secrets.yaml -n network`
@@ -165,11 +176,42 @@ Now we can apply the secret definition to the Kubernetes cluster. We can do this
 #### Add Kubernetes ConfigMap for NetCup DNS Client Configuration (appsettings.json)
 
 Since the appsettings.json file is immutable in the Docker image, we will create a ConfigMap with the contents of the appsettings.json file and load it as a volume in the deployment.
-This also makes it possible to add or remove additional domains and DNS records.
+This also makes it possible to add or remove additional domains and / or DNS records.
 
 First, we need to create a ConfigMap with the contents of the appsettings.json file.
 
-`kubectl create configmap netcup-dns-client-config --from-file=appsettings.json -n network`
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: appsettings-cm
+  namespace: network
+data:
+  appsettings.json: |
+    {
+      "Logging": {
+        "LogLevel": {
+          "Default": "Debug",
+          "System": "Warning",
+          "Microsoft.Hosting.Lifetime": "Information"
+        }
+      },
+      "NetCupApi": {
+        "EndpointUrl": "https://ccp.netcup.net/run/webservice/servers/endpoint.php?JSON",
+        "MyIp4ApiUrl": "https://api.ipify.org",
+        "MyIp6ApiUrl": "https://api6.ipify.org",
+        "RequestInterval": "00:05:00",
+        "Domains": {
+          "domain.com": [
+            "@",
+            "*",
+            "subdomain1",
+            "subdomain2"
+          ]
+        }
+      }
+    }
+```
 
 For the NetCup DNS Client configuration as a Kubernetes configmap, you can use the following YAML definition.
 
