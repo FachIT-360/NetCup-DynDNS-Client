@@ -108,7 +108,7 @@ Then run the comand inside the folder where you extract the binaries:
 
 You can use the following powershell command to set the environment variables:
 
-```powershell  
+```powershell 
 $env:NETCUP_LOGIN_APIKEY=<YOUR_API_KEY>  
 $env:NETCUP_LOGIN_APIPASSWORD=<YOUR_API_PASSWORD>  
 $env:NETCUP_LOGIN_CUSTOMERNUMBER=<YOUR_NETCUP_CUSTOMER_NUMBER>  
@@ -129,6 +129,7 @@ The following sections will show you how to run the client on Docker or Kubernet
 
 ### Run as Kubernetes deployment
 
+#### Add Kubernetes Namespac
 #### Add Kubernetes Namespace
 
 First, we need a namespace. To add a namespace to your Kubernetes cluster, you can use the following command:
