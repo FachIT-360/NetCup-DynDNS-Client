@@ -127,11 +127,17 @@ The following sections will show you how to run the client on Docker or Kubernet
 ### Run as Docker Container
 
 
-### Run as Kubernetes  deployment
+### Run as Kubernetes deployment
 
-First, we add a namespace:
+#### Add Kubernetes Namespace
 
-need the NetCup API credentials as a Kubernetes secret definition.
+First, we need a namespace. To add a namespace to your Kubernetes cluster, you can use the following command:
+
+`kubectl create namespace network`
+
+#### Add Kubernetes Secrets for NetCup API Credentials
+
+For the NetCup API credentials as a Kubernetes secret, you can use the following YAML definition.
 
 ```yaml
 apiVersion: v1
@@ -141,20 +147,30 @@ metadata:
   namespace: network
 type: Opaque
 data:
-  api-key: SSdtIGFuIEFQSSBrZXkgdGhhdCBpcyBiYXNlNjQgZW5jb2RlZCBhbmQgdXNlZCBmb3IgS3ViZXJuZXRlcw==
-  api-password: SSdtIGFuIEFQSSBQYXNzd29yZCB0aGF0IGlzIGJhc2U2NCBlbmNvZGVkIGFuZCB1c2VkIGZvciBLdWJlcm5ldGVz
-  customer-number: MTIzNDU2
+  api-key: <base64 encoded api key>
+  api-password: <base64 encoded api password>
+  customer-number: <base64 encoded customer number>
 ```
 
 Before you exchange the placeholders for the credentials, you must base64 encode the values.
 
-Example: `echo -ne "I'm an API Password that is base64 encoded and used for Kubernetes" | base64 -w0`
+Example: `echo -ne "I'm an API Key that is base64 encoded and used for Kubernetes secret" | base64 -w0`
 
-Insert the encoded string to the right property and save the file as "netcup-dns-api-secrets.yaml".
-Now we can apply the secret definition to the Kubernetes cluster.  
-We can do this by running the following command:
+Insert the encoded string to the right property and save the file as `netcup-dns-api-secrets.yaml`.
+Now we can apply the secret definition to the Kubernetes cluster. We can do this by running the following command:
 
-`kubectl apply -f netcup-dns-api-secrets.yaml`
+`kubectl apply -f netcup-dns-api-secrets.yaml -n network`
+
+#### Add Kubernetes ConfigMap for NetCup DNS Client Configuration (appsettings.json)
+
+Since the appsettings.json file is immutable in the Docker image, we will create a ConfigMap with the contents of the appsettings.json file and load it as a volume in the deployment.
+This also makes it possible to add or remove additional domains and DNS records.
+
+First, we need to create a ConfigMap with the contents of the appsettings.json file.
+
+`kubectl create configmap netcup-dns-client-config --from-file=appsettings.json -n network`
+
+For the NetCup DNS Client configuration as a Kubernetes configmap, you can use the following YAML definition.
 
 # Run Tests
 
