@@ -74,9 +74,6 @@ steps:
         $xml = [Xml] (Get-Content $(Build.SourcesDirectory)/NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj)
         $version = $xml.Project.PropertyGroup.Version
         write-host "##vso[task.setvariable variable=appVersion]$version"
-      #$binary = "$(Build.BinariesDirectory)/$(Build.Repository.Name)/netcup-dyndns.dll"
-      #$version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion.Replace('+', '-')
-      #Write-Host "##vso[task.setvariable variable=dockerTag]$version"
 
   - task: PowerShell@2
     inputs:
