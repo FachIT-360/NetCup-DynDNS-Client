@@ -178,7 +178,7 @@ Now we can apply the secret definition to the Kubernetes cluster. We can do this
 Since the appsettings.json file is immutable in the Docker image, we will create a ConfigMap with the contents of the appsettings.json file and load it as a volume in the deployment.
 This also makes it possible to add or remove additional domains and / or DNS records.
 
-First, we need to create a ConfigMap with the contents of the appsettings.json file.
+The following YAML definition describes the ConfigMap. Save it as `appsettings-cm.yaml`.
 
 ```yaml
 apiVersion: v1
@@ -213,7 +213,68 @@ data:
     }
 ```
 
-For the NetCup DNS Client configuration as a Kubernetes configmap, you can use the following YAML definition.
+Now we can apply the ConfigMap definition to the Kubernetes cluster. We can do this by running the following command:<br/>
+`kubectl apply -f appsettings-cm.yaml -n network`
+
+#### Add Kubernetes Deployment
+
+Last but not least, there is the Kubernetes deployment, which connects everything and executes it after application.
+The following YAML definition describes the deployment. Save it as `netcup-dns-deployment.yaml`.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fit360-netcup-ddns-client
+  namespace: network
+  labels:
+    app: fit360-netcup-ddns-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fit360-netcup-ddns-client
+  template:
+    metadata:
+      labels:
+        app: fit360-netcup-ddns-client
+    spec:
+      volumes:
+        - name: appsettings-volume
+          configMap:
+            name: appsettings-cm
+      containers:
+        - name: fit360-netcup-ddns-client
+          image: >-
+            registry.fachit360.de/network/fit360-netcup-ddns-client:1.1.14-4aecb46ab1-amd64
+          volumeMounts:
+            - name: appsettings-volume
+              mountPath: /app/appsettings.json
+              subPath: appsettings.json
+              readOnly: true
+          env:
+            - name: NETCUP_LOGIN_APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: netcup-dns-api-secrets
+                  key: api-key
+            - name: NETCUP_LOGIN_APIPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: netcup-dns-api-secrets
+                  key: api-password
+            - name: NETCUP_LOGIN_CUSTOMERNUMBER
+              valueFrom:
+                secretKeyRef:
+                  name: netcup-dns-api-secrets
+                  key: customer-number
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+ ```
 
 # Run Tests
 
