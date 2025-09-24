@@ -89,4 +89,4 @@ steps:
       command: 'buildAndPush'
       Dockerfile: '**/Dockerfile'
       buildContext: '.'
-      tags: '"$(appVersion)-$(Build.SourceVersion).SubString(0,10)-amd64"'
+      tags: '$(appVersion)-$(Build.SourceVersion).SubString(0,10)-amd64'
