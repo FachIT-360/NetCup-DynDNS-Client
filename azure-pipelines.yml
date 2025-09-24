@@ -72,7 +72,7 @@ steps:
       targetType: 'inline'
       script:
         $xml = [Xml] (Get-Content $(Build.SourcesDirectory)/NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj);
-        $version = $xml.Project.PropertyGroup.Version.Trim();
+        $version = @($xml.Project.PropertyGroup)[0].Version;
         write-host "##vso[task.setvariable variable=appVersion]$version";
 
   - task: PowerShell@2
