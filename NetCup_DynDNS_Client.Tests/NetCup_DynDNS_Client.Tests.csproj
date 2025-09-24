@@ -1,26 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net9.0</TargetFrameworks>
-    
-    <IsPackable>false</IsPackable>
-    
-    <LangVersion>latestmajor</LangVersion>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>net9.0</TargetFrameworks>
 
-  <ItemGroup>
-    <PackageReference Include="coverlet.collector" Version="6.0.4">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="JetBrains.Annotations" Version="2025.2.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.10.3" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.10.3" />
-  </ItemGroup>
+        <IsPackable>false</IsPackable>
 
-  <ItemGroup>
-    <ProjectReference Include="..\NetCup_DynDNS_Client\NetCup_DynDNS_Client.csproj" />
-  </ItemGroup>
-  
+        <LangVersion>latestmajor</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="coverlet.collector" Version="6.0.4">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="JetBrains.Annotations" Version="2025.2.0"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
+        <PackageReference Include="MSTest.TestAdapter" Version="3.10.3"/>
+        <PackageReference Include="MSTest.TestFramework" Version="3.10.3"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\NetCup_DynDNS_Client\NetCup_DynDNS_Client.csproj"/>
+    </ItemGroup>
+
 </Project>

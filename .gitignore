@@ -367,3 +367,4 @@ FodyWeavers.xsd
 **/.DS_Store
 
 **/.sonarqube/
+/DynDNS.sln.DotSettings

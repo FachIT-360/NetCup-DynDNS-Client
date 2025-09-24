@@ -12,10 +12,6 @@
         <FileVersion>1.1.14.21600</FileVersion>
         <Version>1.1.14</Version>
         <LangVersion>default</LangVersion>
-        <!-- Publish Settings -->
-        <!-- <PublishAot>true</PublishAot> -->
-        <SelfContained>true</SelfContained>
-        <PublishSingleFile>true</PublishSingleFile>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -49,6 +45,6 @@
         <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.8"/>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.8"/>
         <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.8"/>
-        <PackageReference Include="newtonsoft.json" Version="13.0.3" />
+        <PackageReference Include="newtonsoft.json" Version="13.0.3"/>
     </ItemGroup>
 </Project>

@@ -1,5 +1,7 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// (C) 2025 by FachIT360 - Marcus Reinhart
+// SPDX License Identifier: MIT
+// Copyright (c) 2025 by FachIT 360 - Marcus Reinhart
+// See the LICENSE file in the project root directory for details.
 // --------------------------------------------------------------------------------------------------------------------
 
 using System;
@@ -49,6 +51,7 @@ namespace NetCup_DynDNS_Client.Tests
                                                                  {
                                                                      client.BaseAddress = sp.GetRequiredService<IOptionsMonitor<NetCupApi>>()
                                                                                             .CurrentValue.EndpointUrl;
+
                                                                      client.DefaultRequestVersion = HttpVersion.Version20;
                                                                  });
 
@@ -76,35 +79,35 @@ namespace NetCup_DynDNS_Client.Tests
         public async Task ApiGetDnsRecordsForDomainAsyncTest()
         {
             // Get NetCupApiClient
-            var config          = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
-            
+            var config = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
+
             var netCupApiClient = GetNetCupApiClient(config.EndpointUrl!.ToString());
-            
+
             Assert.IsNotNull(netCupApiClient);
-            
+
             Assert.IsNotNull(netCupApiClient.HttpClient);
-            
+
             Assert.IsNotNull(netCupApiClient.HttpClient.BaseAddress);
-            
+
             Assert.AreEqual(config.EndpointUrl, netCupApiClient.HttpClient.BaseAddress);
 
             // Login to NetCup API and get API Session ID
             var apiSessionId = await netCupApiClient.LoginAsync(config.Login);
-            
+
             Assert.IsNotNull(apiSessionId);
 
             // Get DNS records for domain
             var result = await netCupApiClient.GetDnsRecordsForDomainAsync(apiSessionId, config.Domains.First().Key);
-            
+
             Assert.IsNotNull(result);
-            
+
             Assert.IsNotNull(result.ResponseData);
-            
+
             Assert.IsNotEmpty(result.ResponseData.DnsRecordArray);
 
             // Logout from NetCup API
             var isLoggedOut = await netCupApiClient.LogoutAsync(apiSessionId);
-            
+
             Assert.IsTrue(isLoggedOut);
         }
 
@@ -112,37 +115,37 @@ namespace NetCup_DynDNS_Client.Tests
         public async Task ApiLoginAsyncTest()
         {
             // Get NetCupApiClient
-            var config          = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
-            
+            var config = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
+
             var netCupApiClient = GetNetCupApiClient(config.EndpointUrl!.ToString());
-            
+
             Assert.IsNotNull(netCupApiClient);
-            
+
             Assert.IsNotNull(netCupApiClient.HttpClient);
-            
+
             Assert.IsNotNull(netCupApiClient.HttpClient.BaseAddress);
-            
+
             Assert.AreEqual(config.EndpointUrl, netCupApiClient.HttpClient.BaseAddress);
 
             // Login to NetCup API with wrong credentials
             var apiSessionId = await netCupApiClient.LoginAsync("wrongApiKey", "wrongPassword", 0);
-            
+
             Assert.IsNull(apiSessionId);
 
             // Get NetCupApiClient with a wrong API URL
             var wrongNetCupApiClient = GetNetCupApiClient("https://WrongApiUrl.com");
-            
+
             Assert.IsNotNull(wrongNetCupApiClient);
-            
+
             Assert.IsNotNull(wrongNetCupApiClient.HttpClient);
-            
+
             Assert.IsNotNull(wrongNetCupApiClient.HttpClient.BaseAddress);
-            
+
             Assert.AreEqual(new Uri("https://WrongApiUrl.com"), wrongNetCupApiClient.HttpClient.BaseAddress);
 
             // Force connection exception with a wrong API URL
             apiSessionId = await wrongNetCupApiClient.LoginAsync("wrongApiKey", "wrongPassword", 0);
-            
+
             Assert.IsNull(apiSessionId);
         }
 
@@ -150,16 +153,16 @@ namespace NetCup_DynDNS_Client.Tests
         public async Task ApiLogoutAsyncTest()
         {
             // Get NetCupApiClient
-            var config          = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
-            
+            var config = _host.Services.GetRequiredService<IOptionsMonitor<NetCupApi>>().CurrentValue;
+
             var netCupApiClient = GetNetCupApiClient(config.EndpointUrl!.ToString());
-            
+
             Assert.IsNotNull(netCupApiClient);
-            
+
             Assert.IsNotNull(netCupApiClient.HttpClient);
-            
+
             Assert.IsNotNull(netCupApiClient.HttpClient.BaseAddress);
-            
+
             Assert.AreEqual(config.EndpointUrl, netCupApiClient.HttpClient.BaseAddress);
 
             // Login to NetCup API and get API Session ID
@@ -173,14 +176,14 @@ namespace NetCup_DynDNS_Client.Tests
             // Test successful LogOut
             var isLoggedOut = await netCupApiClient.LogoutAsync(apiSessionId);
             Assert.IsTrue(isLoggedOut);
-            
+
             // Get NetCupApiClient with a wrong API URL
             var wrongNetCupApiClient = GetNetCupApiClient("https://WrongApiUrl.com");
             Assert.IsNotNull(wrongNetCupApiClient);
             Assert.IsNotNull(wrongNetCupApiClient.HttpClient);
             Assert.IsNotNull(wrongNetCupApiClient.HttpClient.BaseAddress);
             Assert.AreEqual(new Uri("https://WrongApiUrl.com"), wrongNetCupApiClient.HttpClient.BaseAddress);
-            
+
             // Force connection exception with a wrong API URL
             isLoggedOut = await wrongNetCupApiClient.LogoutAsync(apiSessionId);
             Assert.IsFalse(isLoggedOut);
@@ -308,7 +311,7 @@ namespace NetCup_DynDNS_Client.Tests
 
             var httpClient = new HttpClient
                              {
-                                 BaseAddress = new Uri(baseUrl),
+                                 BaseAddress           = new Uri(baseUrl),
                                  DefaultRequestVersion = HttpVersion.Version20,
                              };
 

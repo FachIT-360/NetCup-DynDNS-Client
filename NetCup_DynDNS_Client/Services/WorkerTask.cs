@@ -1,5 +1,7 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// (C) 2025 by FachIT360 - Marcus Reinhart
+// SPDX License Identifier: MIT
+// Copyright (c) 2025 by FachIT 360 - Marcus Reinhart
+// See the LICENSE file in the project root directory for details.
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Diagnostics.CodeAnalysis;
@@ -72,50 +74,58 @@ namespace FachIT360.Utils.Dns.NetCup.Services
         /// </summary>
         /// <returns>Returns all public IP addresses in IPv4 and / or IPv6 if available.</returns>
         [ExcludeFromCodeCoverage]
-        public async Task<List<IPAddress>> GetCurrentPublicIpAsync(string ipv4ApiAddress, string ipv6ApiAddress)
+        public async Task<List<IPAddress>> GetCurrentPublicIpAsync(string? ipv4ApiAddress, string? ipv6ApiAddress)
         {
             try
             {
                 var publicAddresses = new List<IPAddress>();
-                
-                var httpClientIpV4 = new HttpClient();
-                httpClientIpV4.BaseAddress = new(ipv4ApiAddress, UriKind.Absolute);
-                httpClientIpV4.DefaultRequestVersion = HttpVersion.Version20;
 
-                using (var response = await httpClientIpV4.GetAsync((string?)null))
+
+                if (ipv4ApiAddress != null)
                 {
-                    if (response.IsSuccessStatusCode)
+                    var httpClientIpV4 = new HttpClient();
+                    httpClientIpV4.BaseAddress = new(ipv4ApiAddress, UriKind.Absolute);
+
+                    httpClientIpV4.DefaultRequestVersion = HttpVersion.Version20;
+
+                    using (var response = await httpClientIpV4.GetAsync((string?)null))
                     {
-                        var responseContent = await response.Content.ReadAsStringAsync();
-                        
-                        if (IPAddress.TryParse(responseContent, out var currentIpAddressV4) &&
-                            currentIpAddressV4.AddressFamily == AddressFamily.InterNetwork)
+                        if (response.IsSuccessStatusCode)
                         {
-                            log.LogDebug("The current public ip v4 address is: {CurrentIpAddressV4}", currentIpAddressV4);
-                            publicAddresses.Add(currentIpAddressV4);
+                            var responseContent = await response.Content.ReadAsStringAsync();
+
+                            if (IPAddress.TryParse(responseContent, out var currentIpAddressV4) &&
+                                currentIpAddressV4.AddressFamily == AddressFamily.InterNetwork)
+                            {
+                                log.LogDebug("The current public ip v4 address is: {CurrentIpAddressV4}", currentIpAddressV4);
+                                publicAddresses.Add(currentIpAddressV4);
+                            }
                         }
                     }
                 }
 
-                var httpClientIpV6 = new HttpClient();
-                httpClientIpV6.BaseAddress = new(ipv6ApiAddress, UriKind.Absolute);
-                httpClientIpV6.DefaultRequestVersion = HttpVersion.Version20;
-
-                using (var response = await httpClientIpV6.GetAsync((string?)null))
+                if (ipv6ApiAddress != null)
                 {
-                    if (response.IsSuccessStatusCode)
+                    var httpClientIpV6 = new HttpClient();
+                    httpClientIpV6.BaseAddress           = new(ipv6ApiAddress, UriKind.Absolute);
+                    httpClientIpV6.DefaultRequestVersion = HttpVersion.Version20;
+
+                    using (var response = await httpClientIpV6.GetAsync((string?)null))
                     {
-                        var responseContent = await response.Content.ReadAsStringAsync();
-                        
-                        if (IPAddress.TryParse(responseContent, out var currentIpAddressV6) &&
-                            currentIpAddressV6.AddressFamily == AddressFamily.InterNetworkV6)
+                        if (response.IsSuccessStatusCode)
                         {
-                            log.LogDebug("The current public ip v6 address is: {CurrentIpAddressV6}", currentIpAddressV6);
-                            publicAddresses.Add(currentIpAddressV6);
+                            var responseContent = await response.Content.ReadAsStringAsync();
+
+                            if (IPAddress.TryParse(responseContent, out var currentIpAddressV6) &&
+                                currentIpAddressV6.AddressFamily == AddressFamily.InterNetworkV6)
+                            {
+                                log.LogDebug("The current public ip v6 address is: {CurrentIpAddressV6}", currentIpAddressV6);
+                                publicAddresses.Add(currentIpAddressV6);
+                            }
                         }
                     }
                 }
-                
+
                 return publicAddresses;
             }
             catch (Exception ex)
@@ -159,8 +169,6 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                 }
 
                 await netCupApiClient.LogoutAsync(apiSessionId);
-
-                await Task.Delay(netCupApiOptions.CurrentValue.RequestInterval!.Value, stoppingToken);
             }
         }
 

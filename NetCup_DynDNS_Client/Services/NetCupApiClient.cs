@@ -1,5 +1,7 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// (C) 2025 by FachIT360 - Marcus Reinhart
+// SPDX License Identifier: MIT
+// Copyright (c) 2025 by FachIT 360 - Marcus Reinhart
+// See the LICENSE file in the project root directory for details.
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Net;
@@ -7,11 +9,8 @@ using System.Net.Sockets;
 using System.Text;
 
 using FachIT360.Utils.Dns.NetCup.Models;
-using FachIT360.Utils.Dns.NetCup.Models.AppSettings;
 using FachIT360.Utils.Dns.NetCup.Models.RequestParamModels;
 using FachIT360.Utils.Dns.NetCup.Models.ResponseDataModels;
-
-using Microsoft.Extensions.Options;
 
 using Newtonsoft.Json;
 
@@ -21,7 +20,7 @@ namespace FachIT360.Utils.Dns.NetCup.Services
     {
     #region Constants - Static fields - Fields
 
-        private readonly ILogger<NetCupApiClient>   _log;
+        private readonly ILogger<NetCupApiClient> _log;
 
         private const string JsonMimeType = "application/json";
         private const string SuccessState = "success";
@@ -64,10 +63,8 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
                 if (IPAddress.TryParse(await HttpClient.GetStringAsync(ipv4ApiAddress), out var currentIpAddressV4))
                 {
-                    
                     _log.LogDebug("The current public ip v4 address is: {CurrentIpAddressV4}", currentIpAddressV4);
                     publicAddresses.Add(currentIpAddressV4);
-                    
                 }
 
                 try
@@ -75,18 +72,14 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                     if (IPAddress.TryParse(await HttpClient.GetStringAsync(ipv6ApiAddress), out var currentIpAddressV6) &&
                         currentIpAddressV6.AddressFamily == AddressFamily.InterNetworkV6)
                     {
-                        
                         _log.LogDebug("The current public ip v6 address is: {CurrentIpAddressV6}", currentIpAddressV6);
                         publicAddresses.Add(currentIpAddressV6);
-                        
                     }
                 }
-                catch (HttpRequestException ex) when(ex.Message.Contains("unreachable"))
+                catch (HttpRequestException ex) when (ex.Message.Contains("unreachable"))
                 {
-                    
                     // Ignore IPv6 request exception may be the IPv6 can't be resolved.
                     _log.LogWarning(ex, "The current public ip v6 address request failed.");
-                    
                 }
 
                 return publicAddresses;
@@ -117,7 +110,6 @@ namespace FachIT360.Utils.Dns.NetCup.Services
             {
                 var action = new RequestActionInfoDnsRecords
                              {
-                                 
                                  Action = "infoDnsRecords",
                                  Param = new InfoDnsRecords
                                          {
@@ -126,38 +118,31 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                                              CustomerNumber = NetCupCustomerNumber,
                                              DomainName     = domain
                                          }
-                                 
                              };
 
                 var actionJson = JsonConvert.SerializeObject(action);
 
                 using (var request = new HttpRequestMessage(HttpMethod.Post, ""))
                 {
-                    
                     request.Version = HttpVersion.Version20;
                     request.Content = new StringContent(actionJson, Encoding.UTF8, JsonMimeType);
 
                     using (var response = await HttpClient.SendAsync(request))
                     {
-                        
                         if (response.IsSuccessStatusCode)
                         {
-                            
                             var jsonResponse = await response.Content.ReadAsStringAsync();
 
                             var responseData = JsonConvert.DeserializeObject<ResponseDataInfoDnsRecords>(jsonResponse);
 
                             if (responseData is { Status: SuccessState })
                             {
-                                
                                 _log.LogDebug("Requesting dns records for domain \"{Domain}\" was successful.", domain);
 
                                 return responseData;
-                                
                             }
 
                             _log.LogError("Requesting dns records for domain \"{Domain}\" was failed.", domain);
-                            
                         }
                     }
                 }
@@ -196,10 +181,8 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
                 var action = new RequestActionLogin
                              {
-                                 
                                  Action = "login",
                                  Param  = login
-                                 
                              };
 
                 var actionJson = JsonConvert.SerializeObject(action);
@@ -213,20 +196,17 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                     {
                         if (response.IsSuccessStatusCode)
                         {
-                            
                             var jsonResponse = await response.Content.ReadAsStringAsync();
 
                             var responseData = JsonConvert.DeserializeObject<ResponseDataLogin>(jsonResponse);
 
                             if (responseData is { Status: SuccessState })
                             {
-                                
                                 _log.LogDebug(
                                     "{ResponseLongMessage} | Response Code: {ResponseCode} | State: {Status} | Server request ID: {ServerRequestId}",
                                     responseData.LongMessage, responseData.StatusCode, responseData.Status, responseData.ServerRequestId);
 
                                 return responseData.ResponseData?.ApiSessionId;
-                                
                             }
 
                             _log.LogError("{ResponseLongMessage}", responseData?.LongMessage ?? "Not set!");
@@ -249,13 +229,12 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                 if (apiSessionId == null)
                 {
                     _log.LogError("ApiSessionId is null");
-                
+
                     return false;
                 }
-                
+
                 var action = new RequestActionLogout
                              {
-                                 
                                  Action = "logout",
                                  Param = new Logout
                                          {
@@ -263,20 +242,17 @@ namespace FachIT360.Utils.Dns.NetCup.Services
                                              ApiSessionId   = apiSessionId,
                                              CustomerNumber = NetCupCustomerNumber
                                          }
-                                 
                              };
 
                 var actionJson = JsonConvert.SerializeObject(action);
 
                 using (var request = new HttpRequestMessage(HttpMethod.Post, ""))
                 {
-                    
                     request.Version = HttpVersion.Version20;
                     request.Content = new StringContent(actionJson, Encoding.UTF8, JsonMimeType);
 
                     using (var response = await HttpClient.SendAsync(request))
                     {
-                        
                         if (response.IsSuccessStatusCode)
                         {
                             var jsonResponse = await response.Content.ReadAsStringAsync();
@@ -340,23 +316,19 @@ namespace FachIT360.Utils.Dns.NetCup.Services
 
                 using (var request = new HttpRequestMessage(HttpMethod.Post, ""))
                 {
-                    
                     request.Version = HttpVersion.Version20;
                     request.Content = new StringContent(actionJson, Encoding.UTF8, JsonMimeType);
 
                     using (var response = await HttpClient.SendAsync(request))
                     {
-                        
                         if (response.IsSuccessStatusCode)
                         {
-                            
                             var jsonResponse = await response.Content.ReadAsStringAsync();
 
                             var responseData = JsonConvert.DeserializeObject<ResponseDataUpdateDnsRecords>(jsonResponse);
 
                             if (responseData is { Status: SuccessState })
                             {
-                                
                                 _log.LogInformation(
                                     "{ResponseLongMessage} | Domainname: {DomainName} | Response Code: {ResponseCode} | State: {Status} | Server request ID: {ServerRequestId}",
                                     responseData.LongMessage, domainName, responseData.StatusCode, responseData.Status, responseData.ServerRequestId);

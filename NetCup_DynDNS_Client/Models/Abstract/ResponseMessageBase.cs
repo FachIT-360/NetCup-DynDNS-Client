@@ -1,5 +1,7 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// (C) 2025 by FachIT360 - Marcus Reinhart
+// SPDX License Identifier: MIT
+// Copyright (c) 2025 by FachIT 360 - Marcus Reinhart
+// See the LICENSE file in the project root directory for details.
 // --------------------------------------------------------------------------------------------------------------------
 
 using Newtonsoft.Json;
@@ -19,6 +21,9 @@ namespace FachIT360.Utils.Dns.NetCup.Models.Abstract
         [JsonProperty(PropertyName = "longmessage")]
         public string? LongMessage { get; set; }
 
+        [JsonProperty(PropertyName = "serverrequestid")]
+        public string ServerRequestId { get; set; } = null!;
+
         [JsonProperty(PropertyName = "shortmessage")]
         public string ShortMessage { get; set; } = null!;
 
@@ -27,9 +32,6 @@ namespace FachIT360.Utils.Dns.NetCup.Models.Abstract
 
         [JsonProperty(PropertyName = "statuscode")]
         public uint StatusCode { get; set; }
-
-        [JsonProperty(PropertyName = "serverrequestid")]
-        public string ServerRequestId { get; set; } = null!;
 
     #endregion
     }

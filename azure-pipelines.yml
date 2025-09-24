@@ -1,91 +1,95 @@
 trigger:
-- main
+  - main
 
 variables:
   DOCKER_CLI_EXPERIMENTAL: 'true'
-  
+
 resources:
-- repo: self
+  - repo: self
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
-- task: UseDotNet@2
-  displayName: 'Install .Net SDK 9.0'
-  inputs:
-    packageType: 'sdk'
-    version: '9.x'
+  - task: UseDotNet@2
+    displayName: 'Install .Net SDK 9.0'
+    inputs:
+      packageType: 'sdk'
+      version: '9.x'
 
-- task: PowerShell@2
-  displayName: 'Get assembly version'
-  inputs:
-    targetType: 'inline'
-    script: 
-      $csprojPath = "$(Build.SourcesDirectory)/NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj";
-      $xml = [Xml] (Get-Content -Raw $csprojPath);
-      $version = $xml.SelectSingleNode('//Project/PropertyGroup/Version').InnerText.Trim();
-      $shortSha = $env:BUILD_SOURCEVERSION.SubString(0, 10);
-      $version = "$version-$shortSha-amd64";
-      write-host "##vso[task.setvariable variable=appVersion]$version";
+  - task: DotNetCoreCLI@2
+    displayName: 'Restore projects in Solution'
+    inputs:
+      command: 'restore'
+      projects: '*.sln'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Restore projects in Solution'
-  inputs:
-    command: 'restore'
-    projects: '*.sln'
+  - task: SonarCloudPrepare@3
+    displayName: SonarQube Prepare
+    inputs:
+      SonarQube: 'SonarQube'
+      organization: 'fachit360'
+      scannerMode: 'dotnet'
+      projectKey: 'FachIT360_NetCup-DynDns-Client'
+      projectName: 'NetCup-DynDns-Client'
+      extraProperties: |
+        sonar.dotnet.excludeTestProjects=false
+        sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
+        sonar.cs.opencover.reportsPaths=$(Agent.TempDirectory)/**/coverage.opencover.xml
 
-- task: SonarCloudPrepare@3
-  displayName: SonarQube Prepare
-  inputs:
-    SonarQube: 'SonarQube'
-    organization: 'fachit360'
-    scannerMode: 'dotnet'
-    projectKey: 'FachIT360_NetCup-DynDns-Client'
-    projectName: 'NetCup-DynDns-Client'
-    extraProperties: |
-      sonar.dotnet.excludeTestProjects=false
-      sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
-      sonar.cs.opencover.reportsPaths=$(Agent.TempDirectory)/**/coverage.opencover.xml
+  - task: DotNetCoreCLI@2
+    displayName: 'Build all projects in Solution'
+    inputs:
+      command: build
+      projects: '*.sln'
+      arguments: '--output $(Build.BinariesDirectory)/$(Build.Repository.Name)'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Build all projects in Solution'
-  inputs:
-    command: build
-    projects: '*.sln'
-    arguments: '--output $(Build.BinariesDirectory)/$(Build.Repository.Name)'
+  - task: DotNetCoreCLI@2
+    displayName: 'Execute Tests'
+    inputs:
+      command: 'test'
+      projects: '**/*Tests.csproj'
+      arguments: '--collect "XPlat Code Coverage;Format=opencover" -e NETCUP_LOGIN_APIKEY="$(NETCUP_LOGIN_APIKEY)" -e NETCUP_LOGIN_APIPASSWORD="$(NETCUP_LOGIN_APIPASSWORD)" -e NETCUP_LOGIN_CUSTOMERNUMBER="$(NETCUP_LOGIN_CUSTOMERNUMBER)"'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Execute Tests'
-  inputs:
-    command: 'test'
-    projects: '**/*Tests.csproj'
-    arguments: '--collect "XPlat Code Coverage;Format=opencover" -e NETCUP_LOGIN_APIKEY="$(NETCUP_LOGIN_APIKEY)" -e NETCUP_LOGIN_APIPASSWORD="$(NETCUP_LOGIN_APIPASSWORD)" -e NETCUP_LOGIN_CUSTOMERNUMBER="$(NETCUP_LOGIN_CUSTOMERNUMBER)"'
+  - task: PublishCodeCoverageResults@2
+    displayName: 'Publish Code Coverage'
+    inputs:
+      summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.opencover.xml'
+      failIfCoverageEmpty: true
 
-- task: PublishCodeCoverageResults@2
-  displayName: 'Publish Code Coverage'
-  inputs:
-    summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.opencover.xml'
-    failIfCoverageEmpty: true
+  - task: SonarCloudAnalyze@3
+    displayName: 'SonarCloud Analyse'
+    inputs:
+      jdkversion: 'JAVA_HOME'
 
-- task: SonarCloudAnalyze@3
-  displayName: 'SonarCloud Analyse'
-  inputs:
-    jdkversion: 'JAVA_HOME'
+  - task: SonarCloudPublish@3
+    displayName: 'SonarCloud Publish'
+    inputs:
+      pollingTimeoutSec: '300'
 
-- task: SonarCloudPublish@3
-  displayName: 'SonarCloud Publish'
-  inputs:
-    pollingTimeoutSec: '300'
+  - task: PowerShell@2
+    displayName: 'Get assembly version'
+    inputs:
+      targetType: 'inline'
+      script:
+        $xml = [Xml] (Get-Content $(Build.SourcesDirectory)/NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj)
+        $version = $xml.Project.PropertyGroup.Version
+        write-host "##vso[task.setvariable variable=appVersion]$version"
+      #$binary = "$(Build.BinariesDirectory)/$(Build.Repository.Name)/netcup-dyndns.dll"
+      #$version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($binary).ProductVersion.Replace('+', '-')
+      #Write-Host "##vso[task.setvariable variable=dockerTag]$version"
 
+  - task: PowerShell@2
+    inputs:
+      targetType: inline
+      script: |
+        Write-Host "##[debug] $(appVersion)-$(Build.SourceVersion).SubString(0,10)-amd64"
 
-
-- task: Docker@2
-  displayName: 'Build and Push Docker Image (amd64)'
-  inputs:
-    containerRegistry: 'FachIT 360 - Docker Registry'
-    repository: 'network/fit360-netcup-ddns-client'
-    command: 'buildAndPush'
-    Dockerfile: '**/Dockerfile'
-    buildContext: '.'
-    tags: '$(appVersion)'
+  - task: Docker@2
+    displayName: 'Build and Push Docker Image (amd64)'
+    inputs:
+      containerRegistry: 'FachIT 360 - Docker Registry'
+      repository: 'network/fit360-netcup-ddns-client'
+      command: 'buildAndPush'
+      Dockerfile: '**/Dockerfile'
+      buildContext: '.'
+      tags: '"$(appVersion)-$(Build.SourceVersion).SubString(0,10)-amd64"'
