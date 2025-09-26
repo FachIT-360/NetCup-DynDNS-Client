@@ -17,9 +17,10 @@ steps:
       targetType: 'inline'
       script:
         $xml = [Xml] (Get-Content $(Build.SourcesDirectory)/NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj);
-        $version = @($xml.Project.PropertyGroup)[0].Version;
-        $shortCommit = $(Build.SourceVersion).SubString(0,10);
-        $dockerTag = "$($version)-$($shortCommit)-amd64";
+        $appVersion = @($xml.Project.PropertyGroup)[0].Version;
+        $sourceVersion = $(Build.SourceVersion);
+        $shortSourceVersion = $sourceVersion.SubString(0,10);
+        $dockerTag = "$($appVersion)-$($shortSourceVersion)-amd64";
         write-host "##vso[task.setvariable variable=dockerTag]$dockerTag";
 
   - task: PowerShell@2
