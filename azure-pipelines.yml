@@ -11,6 +11,22 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
+  - task: PowerShell@2
+    displayName: 'Get assembly version'
+    inputs:
+      targetType: 'inline'
+      script:
+        $xml = [Xml] (Get-Content $(Build.SourcesDirectory)/NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj);
+        $version = @($xml.Project.PropertyGroup)[0].Version;
+        $dockerTag = $version-$(Build.SourceVersion).SubString(0,10);
+        write-host "##vso[task.setvariable variable=dockerTag]$dockerTag";
+
+  - task: PowerShell@2
+    inputs:
+      targetType: inline
+      script: |
+        Write-Host "##[debug] $(dockerTag)-amd64"
+
   - task: UseDotNet@2
     displayName: 'Install .Net SDK 9.0'
     inputs:
@@ -66,21 +82,6 @@ steps:
     inputs:
       pollingTimeoutSec: '300'
 
-  - task: PowerShell@2
-    displayName: 'Get assembly version'
-    inputs:
-      targetType: 'inline'
-      script:
-        $xml = [Xml] (Get-Content $(Build.SourcesDirectory)/NetCup_DynDNS_Client/NetCup_DynDNS_Client.csproj);
-        $version = @($xml.Project.PropertyGroup)[0].Version;
-        write-host "##vso[task.setvariable variable=appVersion]$version";
-
-  - task: PowerShell@2
-    inputs:
-      targetType: inline
-      script: |
-        Write-Host "##[debug] $(appVersion)-$(Build.SourceVersion).SubString(0,10)-amd64"
-
   - task: Docker@2
     displayName: 'Build and Push Docker Image (amd64)'
     inputs:
@@ -89,4 +90,4 @@ steps:
       command: 'buildAndPush'
       Dockerfile: '**/Dockerfile'
       buildContext: '.'
-      tags: '$(appVersion)-$(Build.SourceVersion).SubString(0,10)-amd64'
+      tags: '@($(appVersion)-$(Build.SourceVersion)).SubString(0,10)-amd64'
