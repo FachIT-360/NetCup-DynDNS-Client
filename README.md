@@ -1,12 +1,5 @@
 ﻿# NetCup DynDNS Client
 
-[![Build Status](https://dev.azure.com/Fachit360/NetCup%20DynDns%20Client/_apis/build/status%2FNetCup-DynDns-Client?branchName=main)](https://dev.azure.com/Fachit360/NetCup%20DynDns%20Client/_build/latest?definitionId=2&branchName=main)   
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=FachIT360_NetCup-DynDns-Client&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=FachIT360_NetCup-DynDns-Client)   
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=FachIT360_NetCup-DynDns-Client&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=FachIT360_NetCup-DynDns-Client)   
-[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=FachIT360_NetCup-DynDns-Client&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=FachIT360_NetCup-DynDns-Client)   
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=FachIT360_NetCup-DynDns-Client&metric=coverage)](https://sonarcloud.io/summary/new_code?id=FachIT360_NetCup-DynDns-Client)   
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=FachIT360_NetCup-DynDns-Client&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=FachIT360_NetCup-DynDns-Client)
-
 A simple .NET 9 Service to update your NetCup DNS records over the public REST API from [NetCup GmbH](https://www.netcup.com/en/).
 
 The focus of this client was to synchronize the IP address for individual DNS records. Currently, only 'A' records are reliably supported.   
