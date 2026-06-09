@@ -114,7 +114,7 @@ Then run the comand inside the folder where you extract the binaries:
 ## Run on Docker or Kubernetes
 
 You can run the client in a Docker container or container orchestration platform like Kubernetes. I'm providing a Docker image of the latest release on Docker Hub.  
-You will find the image here: https://hub.docker.com/repository/docker/mreinhart2805/fit360-netcup-ddns-client/general.  
+You will find the image here: [https://hub.docker.com/repository/docker/mreinhart2805/fit360-netcup-ddns-client/general](https://hub.docker.com/r/mreinhart2805/fit360-netcup-ddns-client).  
 The following sections will show you how to run the client on Docker or Kubernetes.
 
 ### Run as Docker Container
