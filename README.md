@@ -47,8 +47,8 @@ Example for the appsettings.json:
   },
   "NetCupApi": {
     "Login": {
-      "ApiKey": "SqW235M4XLRPbv69XDreZ0qdWJOoC5CKmPnvn6VTogSKHQjMWX",
-      "ApiPassword": "LO2t4md76hiZLYISIuPqezMYbZjnmtIIX6Nx+auzyjS34cfd1v",
+      "ApiKey": "SqW235M4XLRPbv69XDreZ...",
+      "ApiPassword": "LO2t4md76hiZLYISIuPq...",
       "CustomerNumber": 123456
     },
     "EndpointUrl": "https://ccp.netcup.net/run/webservice/servers/endpoint.php?JSON",
