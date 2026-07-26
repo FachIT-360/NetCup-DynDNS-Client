@@ -1,12 +1,5 @@
 ﻿# NetCup DynDNS Client
 
-[![Build Status](https://dev.azure.com/Fachit360/NetCup%20DynDns%20Client/_apis/build/status%2FNetCup-DynDns-Client?branchName=main)](https://dev.azure.com/Fachit360/NetCup%20DynDns%20Client/_build/latest?definitionId=2&branchName=main)   
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=FachIT360_NetCup-DynDns-Client&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=FachIT360_NetCup-DynDns-Client)   
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=FachIT360_NetCup-DynDns-Client&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=FachIT360_NetCup-DynDns-Client)   
-[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=FachIT360_NetCup-DynDns-Client&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=FachIT360_NetCup-DynDns-Client)   
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=FachIT360_NetCup-DynDns-Client&metric=coverage)](https://sonarcloud.io/summary/new_code?id=FachIT360_NetCup-DynDns-Client)   
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=FachIT360_NetCup-DynDns-Client&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=FachIT360_NetCup-DynDns-Client)
-
 A simple .NET 9 Service to update your NetCup DNS records over the public REST API from [NetCup GmbH](https://www.netcup.com/en/).
 
 The focus of this client was to synchronize the IP address for individual DNS records. Currently, only 'A' records are reliably supported.   
@@ -54,8 +47,8 @@ Example for the appsettings.json:
   },
   "NetCupApi": {
     "Login": {
-      "ApiKey": "SqW235M4XLRPbv69XDreZ0qdWJOoC5CKmPnvn6VTogSKHQjMWX",
-      "ApiPassword": "LO2t4md76hiZLYISIuPqezMYbZjnmtIIX6Nx+auzyjS34cfd1v",
+      "ApiKey": "SqW235M4XLRPbv69XDreZ...",
+      "ApiPassword": "LO2t4md76hiZLYISIuPq...",
       "CustomerNumber": 123456
     },
     "EndpointUrl": "https://ccp.netcup.net/run/webservice/servers/endpoint.php?JSON",
@@ -121,7 +114,7 @@ Then run the comand inside the folder where you extract the binaries:
 ## Run on Docker or Kubernetes
 
 You can run the client in a Docker container or container orchestration platform like Kubernetes. I'm providing a Docker image of the latest release on Docker Hub.  
-You will find the image here: https://hub.docker.com/repository/docker/mreinhart2805/fit360-netcup-ddns-client/general.  
+You will find the image here: [https://hub.docker.com/repository/docker/mreinhart2805/fit360-netcup-ddns-client/general](https://hub.docker.com/r/mreinhart2805/fit360-netcup-ddns-client).  
 The following sections will show you how to run the client on Docker or Kubernetes.
 
 ### Run as Docker Container
